@@ -76,7 +76,7 @@ Three failures show up in Portuguese output that the rows above will not catch.
 
 2. **The over-long subordinate clause.** Portuguese tolerates a clause that buries the verb, so the sentence arrives with the point at the end and the reader has already stopped. Fails: `Foi nesse contexto que, a partir da necessidade de reduzir o tempo de resposta do serviço, eu decidi reescrever o processamento.` Repaired: `Reescrevi o processamento. O tempo de resposta caiu pela metade.`
 
-3. **The bureaucratic register.** Formal Portuguese has a register that reads as a document filed with an office, and it makes a candidate sound like a form. Fails: `Venho por meio desta manifestar meu interesse na oportunidade em questão.` Repaired: `Quero trabalhar nesse time, e o motivo é o problema que vocês descreveram.`
+3. **The bureaucratic register.** Formal Portuguese has a register that reads as a document filed with an office, and it makes a person sound like a form. Fails: `Venho por meio desta manifestar meu interesse na oportunidade em questão.` Repaired: `Quero trabalhar nesse time, e o motivo é o problema que vocês descreveram.`
 
 A fourth habit is worth naming even though it has no clean sample. Portuguese lets a writer soften a claim with a diminutive or a conditional, and a claim softened that way stops being a claim. Write the verb in the past and leave it there.
 <!-- /lang -->
