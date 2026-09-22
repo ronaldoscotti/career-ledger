@@ -1,0 +1,115 @@
+{
+  "updated": "2026-09-21",
+  "applications": [
+    {
+      "id": "arboreta-2026-08",
+      "company": "Arboreta",
+      "site": "Greenhouse",
+      "role": "Senior Data Platform Engineer",
+      "status": "process",
+      "level": "good",
+      "triaged_on": "2026-08-24",
+      "sent_on": "2026-08-26",
+      "moved_on": "2026-09-18",
+      "comp": "EUR 105,000 to 125,000 published, plus equity, band not stated",
+      "resume": "applications/arboreta/resume.md",
+      "fit": "The posting spends its first two paragraphs and half the responsibilities on ingestion reliability and late-arriving data, which is the exact thing she owned at Lomvik for four years and has an attested number for. Published range clears the floor and reaches within 5,000 of the target. Remote within Europe, stated contractually in the posting. Only soft spot is that they run on a warehouse she has not used in production.",
+      "situation": "Recruiter screening passed on 2026-09-08. Hiring manager call scheduled for 2026-09-24 with the head of data platform. Recruiter said the stack question would come up and that they are open on it.",
+      "next": "Finish the hiring manager dossier. Collect the saying-no-to-scope story before the call, because the posting talks about a platform team that has to refuse work.",
+      "files": {
+        "resume": "applications/arboreta/resume.md",
+        "form": "applications/arboreta/form-answers.md",
+        "screening dossier": "applications/arboreta/screening-dossier.md",
+        "screening prompter": "applications/arboreta/screening-prompter.md",
+        "resume changes": "applications/arboreta/resume-changes.md"
+      }
+    },
+    {
+      "id": "pelagic-2026-09",
+      "company": "Pelagic Labs",
+      "site": "Ashby",
+      "role": "Data Infrastructure Engineer",
+      "status": "sent",
+      "level": "strong",
+      "triaged_on": "2026-09-08",
+      "sent_on": "2026-09-10",
+      "moved_on": "2026-09-10",
+      "comp": "No range published. First thing to establish if they reply.",
+      "resume": "applications/pelagic-labs/resume.md",
+      "fit": "Marine telemetry at high volume with intermittent connectivity, which is the dropped-events story almost line for line, including the sequence-number fix. Posting was four days old. The company is in Bristol and the posting says remote within Europe with no right-to-work requirement stated, which is the one thing to confirm.",
+      "situation": "Applied 2026-09-10 with a letter, because the posting asked for one and the opening writes itself off the event loss story. No response yet.",
+      "next": "Nothing until 2026-09-24. If nothing by then, one follow-up to the address on the posting, and no more.",
+      "files": {
+        "resume": "applications/pelagic-labs/resume.md",
+        "letter": "applications/pelagic-labs/letter.md"
+      }
+    },
+    {
+      "id": "mira-2026-09",
+      "company": "Mira Freight",
+      "site": "the company careers page",
+      "role": "Staff Data Engineer",
+      "status": "ready",
+      "level": "stretch",
+      "triaged_on": "2026-09-19",
+      "sent_on": "",
+      "moved_on": "2026-09-19",
+      "comp": "No range published. Two former employees on a reviews site name a band that would clear the floor.",
+      "resume": "master, not yet derived",
+      "fit": "A staff title she has never held, which is the stretch. The technical requirements are ones she meets: ingestion at volume, a warehouse migration in progress, a platform team of five. The posting asks for experience setting direction for a team without managing it, and the dropped-events story is exactly that. She flagged hesitation reading it, which the risk line in the profile says to read as a signal to apply rather than a signal to skip.",
+      "situation": "Triaged as pursue on 2026-09-19. Nothing written yet.",
+      "next": "Derive the resume with the staff framing, lead with the ingestion platform and the on-call rota. Do not open by naming the absent title.",
+      "files": {}
+    }
+  ],
+  "triage": [
+    {
+      "company": "Northbeam Systems",
+      "role": "Data Engineer",
+      "reason": "Posted 2026-06-30, eighty-one days old against a thirty-day limit. Good technical fit and the pipeline has almost certainly closed.",
+      "date": "2026-09-19"
+    },
+    {
+      "company": "Rivenstake",
+      "role": "Senior Data Engineer",
+      "reason": "Sports betting. Declared domain exclusion in the profile. Closed in one line with no weighing, which is the correct shape.",
+      "date": "2026-09-16"
+    },
+    {
+      "company": "Halden Vision",
+      "role": "Platform Engineer, Data",
+      "reason": "Biometric identification for border control. Declared domain exclusion.",
+      "date": "2026-09-16"
+    },
+    {
+      "company": "Cavara",
+      "role": "Analytics Engineer",
+      "reason": "Published range tops out at EUR 78,000, which is 17,000 below the floor. Raised as a declared question and she said no, because the seat is also a level down.",
+      "date": "2026-09-15"
+    },
+    {
+      "company": "Torhavn Group",
+      "role": "Data Platform Engineer",
+      "reason": "Rejected by them on 2026-08-01 for a near-identical seat. Seven weeks is too soon and a second application reads as insistence. Revisit after December.",
+      "date": "2026-09-12"
+    },
+    {
+      "company": "Quenby Analytics",
+      "role": "Senior Data Engineer",
+      "reason": "Requires four hours of daily overlap with United States Pacific time, which the profile rules out. Nothing else wrong with it.",
+      "date": "2026-09-11"
+    },
+    {
+      "company": "Instrelia",
+      "role": "Head of Data",
+      "reason": "A management seat with a hiring plan and a budget attached. She does not want direct reports and said so in one sentence.",
+      "date": "2026-09-05"
+    },
+    {
+      "company": "Baskerline",
+      "role": "Data Engineer, Contract",
+      "reason": "Six-month contract through an intermediary with no extension stated, paid on thirty-day terms. She wants permanent and she has eight months of runway, so the contract would cost her the search.",
+      "date": "2026-09-03"
+    }
+  ]
+}
