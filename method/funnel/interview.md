@@ -176,7 +176,9 @@ Both go in the prompter, written out. A question improvised at the end of a call
 
 Run `method/funnel/_refs/spoken-gate.md` over every answer before the rehearsal, so the rehearsal finds the remaining problems instead of the obvious ones. The filled table goes in the dossier and never in the prompter, because table rows under a card heading render on screen in the middle of a live call.
 
-Then rehearse out loud.
+Then rehearse out loud, with the loop in `method/drills/narration.md`. It is timed, it marks the sentences that break, and it sends them back to be rewritten rather than practised.
+
+Where the stage is worth more than a timed read, run `method/drills/mock-interview.md` as well. It puts an interviewer with clean context against the answers and reports which ones survive two follow-ups.
 
 ## Name every gate by its file
 

@@ -25,6 +25,8 @@ Each stage is one file under `method/funnel/`. Open the file when its condition 
 
 Two files sit outside the funnel. `method/voice.md` runs over anything a person will read as if the person wrote it. `method/setup/00-orchestrator.md` runs when the profile is empty or setup stopped partway.
 
+Two drills sit under `method/drills/`, and `method/funnel/interview.md` routes to both at the rehearsal step. `method/drills/narration.md` is the timed out-loud loop over prepared answers. `method/drills/mock-interview.md` puts an interviewer with clean context against them.
+
 ## The three zero rules
 
 Stated in full, with the incident behind each one, in `method/rules.md`.
