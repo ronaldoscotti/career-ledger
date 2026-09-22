@@ -91,7 +91,7 @@ In order of how often it is granted.
 <!-- lang:pt-BR -->
 ## The five scripts in the person's first language
 
-Use this section when `profile/PROFILE.md` declares the language as `pt-BR`. Instructions stay in English. Only the script text is translated, and the placeholders are identical to the ones above so the substitution is the same work.
+Use this section when `profile/PROFILE.md` declares `language_artifacts` as `pt-BR`. A negotiation message goes to a recruiter, so it follows the artifact language and not the one the person is being talked to in. Instructions stay in English. Only the script text is translated, and the placeholders are identical to the ones above so the substitution is the same work.
 
 **Asked for expectations before an offer exists.**
 

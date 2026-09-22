@@ -1,6 +1,6 @@
 # voice
 
-Run this gate over any text a person will read as if the person wrote it: a resume, a cover letter, a form answer, a message to a recruiter. It is subtractive, and the only thing it does is remove what is not the person; `profile/voice.md` holds what is.
+Run this gate over any text a person will read as if the person wrote it: a resume, a cover letter, a form answer, a message to a recruiter. It is subtractive, and the only thing it does is remove what is not the person. **Open `profile/voice.md` before running a single row below**, because it holds what is, and a gate run without it strips a text to something correct and anonymous.
 
 The reason it matters is the reader. Somebody on the other side has worked through four hundred applications this month, and machine prose is the cheapest thing for that person to reject. A text that sounds assembled gets filtered before anyone weighs what it claims.
 
