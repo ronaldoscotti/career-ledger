@@ -87,3 +87,18 @@ def check_money(lines, ctx):
 
 def check_timezone(lines, ctx):
     return _scan(lines, ctx, "timezone", TIMEZONE)
+
+
+def check_denylist(lines, ctx):
+    if not ctx.denylist:
+        return []
+    pattern = re.compile(r"\b(?:" + "|".join(
+        re.escape(w) for w in sorted(ctx.denylist)) + r")\b")
+    out = []
+    for line in lines:
+        # No exemptions at all. A denylisted name in a code fence, in a code span
+        # or inside a pt-BR sample is still that name.
+        hit = pattern.search(line.raw)
+        if hit:
+            out.append(Finding(ctx.path, line.no, "denylist", hit.group(0)))
+    return out

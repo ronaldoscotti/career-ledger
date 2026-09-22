@@ -1,5 +1,5 @@
 import unittest
-from check_method import parse_lines, Finding, check_money, check_timezone
+from check_method import parse_lines, Finding, check_money, check_timezone, check_denylist
 
 
 class Ctx:
@@ -75,6 +75,31 @@ class TestTimezone(unittest.TestCase):
     def test_does_not_flag_country_names(self):
         # Country and city names belong to the proper-noun check, not this one.
         self.assertEqual(check_timezone(parse_lines("hiring in Brazil\n"), Ctx()), [])
+
+
+class TestDenylist(unittest.TestCase):
+    def setUp(self):
+        self.ctx = Ctx()
+        self.ctx.denylist = {"Ronaldo", "Eduzz", "Laravel"}
+
+    def test_flags_at_sentence_start(self):
+        found = check_denylist(parse_lines("Eduzz is the employer.\n"), self.ctx)
+        self.assertEqual(len(found), 1)
+
+    def test_flags_mid_sentence(self):
+        found = check_denylist(parse_lines("built at Eduzz for years\n"), self.ctx)
+        self.assertEqual(len(found), 1)
+
+    def test_flags_inside_code_fence(self):
+        text = "```\nsite:lever.co Laravel\n```\n"
+        self.assertEqual(len(check_denylist(parse_lines(text), self.ctx)), 1)
+
+    def test_flags_inside_code_span(self):
+        found = check_denylist(parse_lines("see `Eduzz` here\n"), self.ctx)
+        self.assertEqual(len(found), 1)
+
+    def test_is_case_sensitive_on_word_boundary(self):
+        self.assertEqual(check_denylist(parse_lines("orbital mechanics\n"), self.ctx), [])
 
 
 if __name__ == "__main__":
