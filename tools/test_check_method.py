@@ -1,5 +1,6 @@
 import unittest
-from check_method import parse_lines, Finding, check_money, check_timezone, check_denylist
+from check_method import (parse_lines, Finding, check_money, check_timezone,
+                          check_denylist, check_proper_nouns)
 
 
 class Ctx:
@@ -100,6 +101,49 @@ class TestDenylist(unittest.TestCase):
 
     def test_is_case_sensitive_on_word_boundary(self):
         self.assertEqual(check_denylist(parse_lines("orbital mechanics\n"), self.ctx), [])
+
+
+class TestProperNouns(unittest.TestCase):
+    def setUp(self):
+        self.ctx = Ctx()
+        self.ctx.allowlist = {"Greenhouse", "Lever", "LinkedIn"}
+
+    def test_flags_mid_sentence_capital(self):
+        found = check_proper_nouns(parse_lines("they use Workday for this\n"), self.ctx)
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0].excerpt, "Workday")
+
+    def test_allows_sentence_initial(self):
+        # Accepted miss: the denylist covers the names that matter at any position.
+        self.assertEqual(check_proper_nouns(parse_lines("Workday is common.\n"), self.ctx), [])
+
+    def test_allows_allowlisted(self):
+        self.assertEqual(check_proper_nouns(parse_lines("post on Greenhouse today\n"), self.ctx), [])
+
+    def test_allows_short_acronyms(self):
+        self.assertEqual(check_proper_nouns(parse_lines("run the ATS and STAR checks\n"), self.ctx), [])
+
+    def test_allows_hyphenated_short_acronyms(self):
+        for ok in ["the rule ZERO-A is mandatory", "same as ZERO-B here"]:
+            with self.subTest(ok=ok):
+                self.assertEqual(check_proper_nouns(parse_lines(ok + "\n"), self.ctx), [])
+
+    def test_flags_long_all_caps(self):
+        self.assertEqual(len(check_proper_nouns(parse_lines("the SALESFORCE export\n"), self.ctx)), 1)
+
+    def test_allows_headings(self):
+        self.assertEqual(check_proper_nouns(parse_lines("## The Measured Number Test\n"), self.ctx), [])
+
+    def test_allows_code_spans_and_fences(self):
+        self.assertEqual(check_proper_nouns(parse_lines("read `profile/PROFILE.md` now\n"), self.ctx), [])
+        self.assertEqual(check_proper_nouns(parse_lines("```\nAshby\n```\n"), self.ctx), [])
+
+    def test_allows_after_terminal_punctuation(self):
+        found = check_proper_nouns(parse_lines("Do it. Workday is fine.\n"), self.ctx)
+        self.assertEqual(found, [])
+
+    def test_allows_i(self):
+        self.assertEqual(check_proper_nouns(parse_lines("what I own here\n"), self.ctx), [])
 
 
 if __name__ == "__main__":

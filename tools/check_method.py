@@ -102,3 +102,34 @@ def check_denylist(lines, ctx):
         if hit:
             out.append(Finding(ctx.path, line.no, "denylist", hit.group(0)))
     return out
+
+
+WORD = re.compile(r"\b[A-Za-z][A-Za-z'’-]*\b")
+SENTENCE_END = re.compile(r"[.!?:]['\"”’)]?\s*$")
+# Markdown furniture that starts a line and must not count as sentence-initial context.
+LEADER = re.compile(r"^\s*(?:[-*+]|\d+\.|>|\|)?\s*")
+
+
+def check_proper_nouns(lines, ctx):
+    out = []
+    for line in lines:
+        if line.in_fence or line.is_heading or line.in_lang:
+            continue
+        text = line.prose
+        start = LEADER.match(text).end()
+        for m in WORD.finditer(text, start):
+            word = m.group(0)
+            if not word[0].isupper():
+                continue
+            if word in ctx.allowlist or word == "I":
+                continue
+            # Hyphens do not count toward acronym length, or the method's own
+            # ZERO-A, ZERO-B and ZERO-C would trip the check that guards them.
+            bare = word.replace("-", "").replace("’", "").replace("'", "")
+            if bare.isupper() and len(bare) <= 5:
+                continue
+            before = text[start:m.start()]
+            if not before.strip() or SENTENCE_END.search(before):
+                continue  # sentence-initial: the accepted miss
+            out.append(Finding(ctx.path, line.no, "proper-noun", word))
+    return out
