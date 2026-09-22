@@ -5,6 +5,7 @@ Exists because the system this was extracted from copied the same compensation
 figure into seven files, and two of them were a month stale before anyone noticed.
 Prose does not validate. This does.
 """
+import fnmatch
 import re
 from dataclasses import dataclass
 
@@ -174,4 +175,28 @@ def check_language(lines, ctx):
         hits = words & PT_WORDS
         if len(hits) >= 2:
             out.append(Finding(ctx.path, line.no, "language", " ".join(sorted(hits))))
+    return out
+
+
+# A code span is treated as a path when it carries a slash or ends in a known
+# extension. `status` is not a path; `tracker.py` is, and is meant to fail.
+PATHISH = re.compile(r"^[\w./-]+(?:/[\w./-]+|\.(?:md|py|json|sh|txt|html|pdf))$")
+
+
+def check_paths(lines, ctx):
+    out = []
+    for line in lines:
+        if line.in_lang:
+            continue
+        for span in CODE_SPAN.findall(line.raw):
+            candidate = span.strip("`").strip()
+            if not PATHISH.match(candidate):
+                continue
+            if any(fnmatch.fnmatch(candidate, glob) or
+                   fnmatch.fnmatch(candidate, glob.replace("/**", "/*"))
+                   for glob in ctx.contract_paths):
+                continue
+            if (ctx.root / candidate).exists():
+                continue
+            out.append(Finding(ctx.path, line.no, "path", candidate))
     return out

@@ -1,7 +1,9 @@
 import unittest
 from check_method import (parse_lines, Finding, check_money, check_timezone,
                           check_denylist, check_proper_nouns, check_agent_tooling,
-                          check_language)
+                          check_language, check_paths)
+import tempfile
+from pathlib import Path
 
 
 class Ctx:
@@ -184,6 +186,41 @@ class TestLanguage(unittest.TestCase):
 
     def test_allows_english_with_accents(self):
         self.assertEqual(check_language(parse_lines("a résumé and a café\n"), Ctx()), [])
+
+
+class TestPaths(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        (self.tmp / "method" / "funnel").mkdir(parents=True)
+        (self.tmp / "method" / "funnel" / "triage.md").write_text("x")
+        self.ctx = Ctx()
+        self.ctx.root = self.tmp
+        self.ctx.contract_paths = ["profile/**", "applications/**",
+                                   "tools/**", ".setup-state.json"]
+
+    def test_flags_missing_method_path(self):
+        found = check_paths(parse_lines("read `method/funnel/nope.md`\n"), self.ctx)
+        self.assertEqual(len(found), 1)
+
+    def test_allows_existing_method_path(self):
+        self.assertEqual(check_paths(parse_lines("read `method/funnel/triage.md`\n"), self.ctx), [])
+
+    def test_allows_contract_path_that_does_not_exist(self):
+        # The whole point: the gate passes on a tree with no profile/ in it.
+        self.assertEqual(check_paths(parse_lines("the floor in `profile/PROFILE.md`\n"), self.ctx), [])
+
+    def test_allows_tools_path_before_phase_two(self):
+        self.assertEqual(check_paths(parse_lines("record it with `tools/tracker.py`\n"), self.ctx), [])
+
+    def test_flags_path_outside_the_manifest(self):
+        self.assertEqual(len(check_paths(parse_lines("see `elsewhere/thing.md`\n"), self.ctx)), 1)
+
+    def test_flags_bare_filename(self):
+        # Contract rule 3: always the full path from the repo root.
+        self.assertEqual(len(check_paths(parse_lines("record it with `tracker.py`\n"), self.ctx)), 1)
+
+    def test_ignores_non_path_code_spans(self):
+        self.assertEqual(check_paths(parse_lines("set `status` to `ready`\n"), self.ctx), [])
 
 
 if __name__ == "__main__":
