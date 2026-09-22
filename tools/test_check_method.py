@@ -131,6 +131,26 @@ class TestProperNouns(unittest.TestCase):
             with self.subTest(ok=ok):
                 self.assertEqual(check_proper_nouns(parse_lines(ok + "\n"), self.ctx), [])
 
+    def test_allows_word_after_a_bold_lead_in(self):
+        # Markdown emphasis is furniture, like a bullet. The word after it opens
+        # the sentence, and the word after the closing marker follows a full stop.
+        line = "- **Tier one, open directly.** Company career pages work.\n"
+        self.assertEqual(check_proper_nouns(parse_lines(line), self.ctx), [])
+
+    def test_allows_title_case_table_cells(self):
+        line = "| Method | What it changes |\n"
+        self.assertEqual(check_proper_nouns(parse_lines(line), self.ctx), [])
+
+    def test_still_flags_a_proper_noun_inside_bold(self):
+        line = "- **The rule.** They run Workday for reviews.\n"
+        found = check_proper_nouns(parse_lines(line), self.ctx)
+        self.assertEqual([f.excerpt for f in found], ["Workday"])
+
+    def test_still_flags_a_proper_noun_in_a_table_cell(self):
+        line = "| Default | they post on Workday |\n"
+        found = check_proper_nouns(parse_lines(line), self.ctx)
+        self.assertEqual([f.excerpt for f in found], ["Workday"])
+
     def test_flags_long_all_caps(self):
         self.assertEqual(len(check_proper_nouns(parse_lines("the SALESFORCE export\n"), self.ctx)), 1)
 

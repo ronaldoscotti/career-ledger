@@ -109,6 +109,7 @@ def check_denylist(lines, ctx):
 
 
 WORD = re.compile(r"\b[A-Za-z][A-Za-z'’-]*\b")
+EMPHASIS = re.compile(r"\*\*|__|\*|_")
 SENTENCE_END = re.compile(r"[.!?:]['\"”’)]?\s*$")
 # Markdown furniture that starts a line and must not count as sentence-initial context.
 LEADER = re.compile(r"^\s*(?:[-*+]|\d+\.|>|\|)?\s*")
@@ -119,23 +120,35 @@ def check_proper_nouns(lines, ctx):
     for line in lines:
         if line.in_fence or line.is_heading or line.in_lang:
             continue
-        text = line.prose
-        start = LEADER.match(text).end()
-        for m in WORD.finditer(text, start):
-            word = m.group(0)
-            if not word[0].isupper():
-                continue
-            if word in ctx.allowlist or word == "I":
-                continue
-            # Hyphens do not count toward acronym length, or the method's own
-            # ZERO-A, ZERO-B and ZERO-C would trip the check that guards them.
-            bare = word.replace("-", "").replace("’", "").replace("'", "")
-            if bare.isupper() and len(bare) <= 5:
-                continue
-            before = text[start:m.start()]
-            if not before.strip() or SENTENCE_END.search(before):
-                continue  # sentence-initial: the accepted miss
-            out.append(Finding(ctx.path, line.no, "proper-noun", word))
+        # Emphasis markers are furniture, like a bullet: the word inside a bold
+        # lead-in opens its sentence, and the word after the closing marker
+        # follows the full stop. Table cells are separate runs for the same
+        # reason. Without both, "- **The rule.** Cut hard." reports three
+        # proper nouns and none of them is one.
+        for text in EMPHASIS.sub(" ", line.prose).split("|"):
+            out.extend(_proper_nouns_in_run(text, line, ctx))
+    return out
+
+
+def _proper_nouns_in_run(text, line, ctx):
+    """Scans one emphasis-stripped run of a line, with its own sentence start."""
+    out = []
+    start = LEADER.match(text).end()
+    for m in WORD.finditer(text, start):
+        word = m.group(0)
+        if not word[0].isupper():
+            continue
+        if word in ctx.allowlist or word == "I":
+            continue
+        # Hyphens do not count toward acronym length, or the method's own
+        # ZERO-A, ZERO-B and ZERO-C would trip the check that guards them.
+        bare = word.replace("-", "").replace("’", "").replace("'", "")
+        if bare.isupper() and len(bare) <= 5:
+            continue
+        before = text[start:m.start()]
+        if not before.strip() or SENTENCE_END.search(before):
+            continue  # sentence-initial: the accepted miss
+        out.append(Finding(ctx.path, line.no, "proper-noun", word))
     return out
 
 
