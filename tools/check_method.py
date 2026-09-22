@@ -133,3 +133,17 @@ def check_proper_nouns(lines, ctx):
                 continue  # sentence-initial: the accepted miss
             out.append(Finding(ctx.path, line.no, "proper-noun", word))
     return out
+
+
+# Inline, not a file: this list is the method's own vocabulary discipline, not
+# something a person adopting the repo is expected to tune.
+AGENT_TOOLING = re.compile(
+    r"\b(?:Task|Skill|Bash|Read|Write|Edit|Glob|Grep|WebFetch|WebSearch)\s+tool\b"
+    r"|\bTodoWrite\b|\bslash command\b|\bsubagent_type\b"
+    r"|\.claude/|\bCLAUDE\.md\b",
+    re.IGNORECASE,
+)
+
+
+def check_agent_tooling(lines, ctx):
+    return _scan(lines, ctx, "agent-tooling", AGENT_TOOLING)

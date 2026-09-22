@@ -1,6 +1,6 @@
 import unittest
 from check_method import (parse_lines, Finding, check_money, check_timezone,
-                          check_denylist, check_proper_nouns)
+                          check_denylist, check_proper_nouns, check_agent_tooling)
 
 
 class Ctx:
@@ -144,6 +144,25 @@ class TestProperNouns(unittest.TestCase):
 
     def test_allows_i(self):
         self.assertEqual(check_proper_nouns(parse_lines("what I own here\n"), self.ctx), [])
+
+
+class TestAgentTooling(unittest.TestCase):
+    def test_flags_tool_names(self):
+        for bad in ["use the Task tool", "call TodoWrite", "the Bash tool",
+                    "a slash command", "see .claude/skills", "read CLAUDE.md"]:
+            with self.subTest(bad=bad):
+                self.assertEqual(len(check_agent_tooling(parse_lines(bad + "\n"), Ctx())), 1)
+
+    def test_allows_neutral_vocabulary(self):
+        for ok in ["dispatch a subagent with clean context",
+                   "read the file at tools/tracker.py",
+                   "ask the person to paste it"]:
+            with self.subTest(ok=ok):
+                self.assertEqual(check_agent_tooling(parse_lines(ok + "\n"), Ctx()), [])
+
+    def test_flags_inside_code_fence(self):
+        text = "```\nTask tool: review\n```\n"
+        self.assertEqual(len(check_agent_tooling(parse_lines(text), Ctx())), 1)
 
 
 if __name__ == "__main__":
