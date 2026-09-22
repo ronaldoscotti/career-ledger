@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tracker import STATUSES, REQUIRE_SENT_ON, validate_card, ValidationError
+from tracker import (STATUSES, REQUIRE_SENT_ON, validate_card, ValidationError,
+                     apply_update, demote)
 
 
 def card(**over):
@@ -44,3 +45,32 @@ class TestValidation(unittest.TestCase):
 
     def test_every_status_except_ready_requires_sent_on(self):
         self.assertEqual(REQUIRE_SENT_ON, set(STATUSES) - {"ready"})
+
+
+class TestFrozenFields(unittest.TestCase):
+    def test_rejects_rewriting_fit(self):
+        existing = card()
+        with self.assertRaises(ValidationError):
+            apply_update(existing, {"fit": "actually it was a stretch"})
+
+    def test_rejects_rewriting_level(self):
+        with self.assertRaises(ValidationError):
+            apply_update(card(), {"level": "stretch"})
+
+    def test_allows_rewriting_situation_and_next(self):
+        updated = apply_update(card(), {"situation": "Sent.", "next": "Follow up 01/10."})
+        self.assertEqual(updated["situation"], "Sent.")
+
+    def test_move_stamps_moved_on(self):
+        updated = apply_update(card(), {"status": "sent", "sent_on": "2026-09-23"},
+                               today="2026-09-24")
+        self.assertEqual(updated["moved_on"], "2026-09-24")
+
+
+class TestDemotion(unittest.TestCase):
+    def test_demote_moves_card_to_triage_array(self):
+        data = {"updated": "", "applications": [card()], "triage": []}
+        demote(data, "acme", "posting closed before sending", today="2026-09-24")
+        self.assertEqual(data["applications"], [])
+        self.assertEqual(data["triage"][0]["company"], "Acme")
+        self.assertEqual(data["triage"][0]["reason"], "posting closed before sending")
