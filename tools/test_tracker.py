@@ -1,7 +1,4 @@
-import json
-import tempfile
 import unittest
-from pathlib import Path
 
 from tracker import (STATUSES, REQUIRE_SENT_ON, validate_card, ValidationError,
                      apply_update, demote)
