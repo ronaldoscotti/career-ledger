@@ -1,0 +1,4 @@
+profile/**
+applications/**
+tools/**
+.setup-state.json

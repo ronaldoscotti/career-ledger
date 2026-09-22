@@ -1,0 +1,15 @@
+# Platforms and products the method legitimately names.
+# Acronyms of five characters or fewer are exempt by rule and do not belong here.
+Greenhouse
+Lever
+Ashby
+LinkedIn
+Glassdoor
+GitHub
+Reddit
+Chrome
+Python
+# The method names its own artifacts. These are longer than the acronym
+# exemption allows and would otherwise trip the proper-noun check.
+UNVERIFIED
+CONFIRM
