@@ -200,3 +200,53 @@ def check_paths(lines, ctx):
                 continue
             out.append(Finding(ctx.path, line.no, "path", candidate))
     return out
+
+
+import argparse
+import sys
+from pathlib import Path
+
+CHECKS = (check_money, check_timezone, check_denylist, check_proper_nouns,
+          check_agent_tooling, check_language, check_paths)
+
+
+class Context:
+    def __init__(self, root: Path):
+        self.root = root
+        self.allowlist = _words(root / "tools" / "allowlist.txt")
+        self.denylist = _words(root / "tools" / "denylist.txt")
+        self.contract_paths = sorted(_words(root / "tools" / "contract-paths.txt"))
+        self.path = ""
+
+
+def _words(path: Path) -> set[str]:
+    if not path.exists():
+        return set()
+    return {line.strip() for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")}
+
+
+def run(root: Path) -> list[Finding]:
+    ctx = Context(root)
+    findings = []
+    for md in sorted((root / "method").rglob("*.md")):
+        ctx.path = str(md.relative_to(root))
+        lines = parse_lines(md.read_text(encoding="utf-8"))
+        for check in CHECKS:
+            findings.extend(check(lines, ctx))
+    return findings
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", default=".", type=Path)
+    args = parser.parse_args()
+    findings = run(args.root.resolve())
+    for f in sorted(findings, key=lambda f: (f.path, f.line)):
+        print(f"{f.path}:{f.line}: {f.check}: {f.excerpt}")
+    print(f"\n{len(findings)} finding(s)")
+    return 1 if findings else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

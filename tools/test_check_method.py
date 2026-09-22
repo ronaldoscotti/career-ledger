@@ -1,7 +1,7 @@
 import unittest
 from check_method import (parse_lines, Finding, check_money, check_timezone,
                           check_denylist, check_proper_nouns, check_agent_tooling,
-                          check_language, check_paths)
+                          check_language, check_paths, run)
 import tempfile
 from pathlib import Path
 
@@ -221,6 +221,34 @@ class TestPaths(unittest.TestCase):
 
     def test_ignores_non_path_code_spans(self):
         self.assertEqual(check_paths(parse_lines("set `status` to `ready`\n"), self.ctx), [])
+
+
+class TestRun(unittest.TestCase):
+    def test_clean_tree_returns_no_findings(self):
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "method").mkdir()
+        (tmp / "method" / "a.md").write_text("Read the posting in full before judging it.\n")
+        self.assertEqual(run(tmp), [])
+
+    def test_planted_violation_of_every_check_is_caught(self):
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "method").mkdir()
+        (tmp / "tools").mkdir()
+        (tmp / "tools" / "denylist.txt").write_text("Eduzz\n")
+        (tmp / "tools" / "allowlist.txt").write_text("Lever\n")
+        (tmp / "tools" / "contract-paths.txt").write_text("profile/**\n")
+        (tmp / "method" / "bad.md").write_text(
+            "the floor is US$120k\n"
+            "overlap with UTC-3\n"
+            "built at Eduzz once\n"
+            "they use Workday here\n"
+            "use the Task tool\n"
+            "a decisão é dele\n"
+            "read `method/gone.md`\n"
+        )
+        checks = {f.check for f in run(tmp)}
+        self.assertEqual(checks, {"money", "timezone", "denylist", "proper-noun",
+                                  "agent-tooling", "language", "path"})
 
 
 if __name__ == "__main__":
