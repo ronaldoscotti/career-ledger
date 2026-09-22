@@ -21,7 +21,7 @@ When any stage of the method meets a career fact that is not in the experience b
 
 Only then does it write to the period file under `profile/experience/`, with the number going to `profile/experience/locks.md`.
 
-A fact without a measured number is written with an `UNVERIFIED` marker, and it cannot appear in any outgoing material until it is closed. An approximate number is not a measured number, even with a tilde. An order of magnitude taken from a measurement that actually happened is fine.
+A fact without a measured number is written with an `[UNVERIFIED]` marker, and it cannot appear in any outgoing material until it is closed. An approximate number is not a measured number, even with a tilde. An order of magnitude taken from a measurement that actually happened is fine.
 
 This is the same protocol as setup step 02, applied one fact at a time. Setup never finishes. Feeding the bank one fact at a time is that same work, running for as long as the search does.
 
