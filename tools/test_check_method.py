@@ -1,6 +1,7 @@
 import unittest
 from check_method import (parse_lines, Finding, check_money, check_timezone,
-                          check_denylist, check_proper_nouns, check_agent_tooling)
+                          check_denylist, check_proper_nouns, check_agent_tooling,
+                          check_language)
 
 
 class Ctx:
@@ -163,6 +164,26 @@ class TestAgentTooling(unittest.TestCase):
     def test_flags_inside_code_fence(self):
         text = "```\nTask tool: review\n```\n"
         self.assertEqual(len(check_agent_tooling(parse_lines(text), Ctx())), 1)
+
+
+class TestLanguage(unittest.TestCase):
+    def test_flags_portuguese_diacritic(self):
+        self.assertEqual(len(check_language(parse_lines("a decisão é dele\n"), Ctx())), 1)
+
+    def test_flags_two_function_words(self):
+        self.assertEqual(len(check_language(parse_lines("leia o arquivo que esta la\n"), Ctx())), 1)
+
+    def test_allows_one_function_word(self):
+        # One hit proves nothing: "para" is also an English prefix and a Greek
+        # preposition. The threshold is two, and this line carries exactly one.
+        self.assertEqual(check_language(parse_lines("para is the word here\n"), Ctx()), [])
+
+    def test_allows_tagged_section(self):
+        text = "<!-- lang:pt-BR -->\nNão escreva assim, é ruim.\n<!-- /lang -->\n"
+        self.assertEqual(check_language(parse_lines(text), Ctx()), [])
+
+    def test_allows_english_with_accents(self):
+        self.assertEqual(check_language(parse_lines("a résumé and a café\n"), Ctx()), [])
 
 
 if __name__ == "__main__":

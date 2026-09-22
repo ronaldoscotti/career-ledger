@@ -147,3 +147,31 @@ AGENT_TOOLING = re.compile(
 
 def check_agent_tooling(lines, ctx):
     return _scan(lines, ctx, "agent-tooling", AGENT_TOOLING)
+
+
+# Portuguese-only diacritics. Acute accents are excluded on purpose: résumé and
+# café are English enough to appear in this method, and ã õ ç are not.
+PT_DIACRITIC = re.compile(r"[ãõÃÕçÇ]")
+# High-frequency Portuguese function words with no English collision.
+PT_WORDS = {
+    "que", "nao", "não", "para", "com", "uma", "dos", "das", "são", "sao",
+    "você", "voce", "pelo", "pela", "isso", "mais", "seu", "sua", "quando",
+    "onde", "porque", "depois", "antes", "sempre", "nunca", "aqui", "ali",
+    "ele", "ela", "eles", "elas", "nós", "nos", "esta", "está", "esse",
+    "essa", "aquele", "cada", "todo", "toda", "muito", "pouco", "entre",
+}
+
+
+def check_language(lines, ctx):
+    out = []
+    for line in lines:
+        if line.in_lang or line.in_fence:
+            continue
+        if PT_DIACRITIC.search(line.prose):
+            out.append(Finding(ctx.path, line.no, "language", line.prose.strip()[:60]))
+            continue
+        words = {w.lower() for w in WORD.findall(line.prose)}
+        hits = words & PT_WORDS
+        if len(hits) >= 2:
+            out.append(Finding(ctx.path, line.no, "language", " ".join(sorted(hits))))
+    return out
