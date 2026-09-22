@@ -1,9 +1,9 @@
+import tempfile
 import unittest
+from pathlib import Path
 from check_method import (parse_lines, Finding, check_money, check_timezone,
                           check_denylist, check_proper_nouns, check_agent_tooling,
                           check_language, check_paths, run)
-import tempfile
-from pathlib import Path
 
 
 class Ctx:

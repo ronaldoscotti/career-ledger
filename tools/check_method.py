@@ -5,9 +5,12 @@ Exists because the system this was extracted from copied the same compensation
 figure into seven files, and two of them were a month stale before anyone noticed.
 Prose does not validate. This does.
 """
+import argparse
 import fnmatch
 import re
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 FENCE = re.compile(r"^\s*```")
 LANG_OPEN = re.compile(r"<!--\s*lang:[\w-]+\s*-->")
@@ -201,10 +204,6 @@ def check_paths(lines, ctx):
             out.append(Finding(ctx.path, line.no, "path", candidate))
     return out
 
-
-import argparse
-import sys
-from pathlib import Path
 
 CHECKS = (check_money, check_timezone, check_denylist, check_proper_nouns,
           check_agent_tooling, check_language, check_paths)
