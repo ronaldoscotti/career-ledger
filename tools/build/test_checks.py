@@ -2,6 +2,7 @@ import os
 import tempfile
 import unittest
 
+from md2resume import render
 from checks import ats_failures, count_em_dashes, count_pages_from_pdf, keyword_coverage
 
 
@@ -61,3 +62,11 @@ class TestPageCount(unittest.TestCase):
     def test_returns_zero_when_absent(self):
         self.assertEqual(count_pages_from_pdf(self._pdf(b"nothing here")), 0)
 
+
+class TestRender(unittest.TestCase):
+    def test_html_comments_never_reach_the_page(self):
+        """A comment is a note to the writer, and the page goes to the company."""
+        html = render("<!-- cut the mentoring bullet -->\n\n# Name\n\nEngineer.\n")
+        self.assertNotIn("cut the mentoring bullet", html)
+        self.assertNotIn("lt;!--", html)
+        self.assertIn("Engineer", html)

@@ -49,7 +49,9 @@ The voice gate runs last, after the bullet gate. The order is not arbitrary. The
 
 ## The header of the derived file
 
-Every derived file opens with a block listing what changed against the master and why, one bullet per decision. It is the auditable difference.
+The record of what changed against the master lives in a sibling file, `applications/<company>/resume-changes.md`, registered in the card's `files` map. One bullet per decision, with the reason. It is the auditable difference, and it is what explains a cut three weeks later.
+
+It sits beside the resume rather than inside it for one reason: `tools/build/` renders the markdown it is given, and a note saying which bullet was cut has no business inside the document that goes to the company. The build now strips comments, so an accident there is caught, and keeping the record in its own file means the accident cannot happen at all.
 
 Three weeks later, somebody looks at this file and asks why the strongest project is missing. The header answers in one line, and without it the answer is a reconstruction. The block also catches the adaptation nobody meant to make, because a decision that cannot be stated in a line is usually a decision that happened by accident.
 

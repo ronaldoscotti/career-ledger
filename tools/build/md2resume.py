@@ -40,6 +40,11 @@ def _inline(text: str) -> str:
     return out
 
 
+# A comment is a note to the writer. Rendering one ships "cut the mentoring
+# bullet" inside the document sent to the company, which is worse than useless.
+COMMENT = re.compile(r"<!--.*?-->", re.S)
+
+
 def render(markdown: str) -> str:
     """Renders the supported markdown subset to the body of the resume."""
     body, bullets, paragraph = [], [], []
@@ -52,6 +57,7 @@ def render(markdown: str) -> str:
             body.append(f"<p>{' '.join(paragraph)}</p>")
             paragraph.clear()
 
+    markdown = COMMENT.sub("", markdown)
     for line in markdown.splitlines():
         stripped = line.strip()
         heading = re.match(r"(#{1,3})\s+(.*)", stripped)
