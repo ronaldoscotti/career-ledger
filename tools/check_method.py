@@ -45,3 +45,45 @@ def parse_lines(text: str) -> list[Line]:
         if closes_lang:
             in_lang = False
     return out
+
+
+# IGNORECASE is deliberately NOT applied to the whole pattern. It would make
+# [$€£R] match a lowercase r, and then "wait for 24 hours", "after 3 weeks"
+# and "LAYER 3" all report as money. Only the ISO codes are case-insensitive.
+MONEY = re.compile(
+    r"(?:[$€£]\s?\d|R\$\s?\d|\b(?i:USD|BRL|EUR|GBP)\s?\d|\b\d[\d.,]*\s?[kK]\b)"
+)
+TZ_ABBREVIATIONS = {"PST", "PDT", "EST", "EDT", "CST", "CDT", "MST",
+                    "MDT", "CET", "CEST", "GMT", "BRT", "IST", "JST"}
+TIMEZONE = re.compile(
+    r"\b(?:UTC|GMT)\s?[+-]\s?\d{1,2}\b"
+    r"|\b[A-Z][a-z]+/[A-Z][A-Za-z_]+\b"
+    r"|\b(?:" + "|".join(TZ_ABBREVIATIONS) + r")\b"
+)
+
+
+@dataclass(frozen=True)
+class Finding:
+    path: str
+    line: int
+    check: str
+    excerpt: str
+
+
+def _scan(lines, ctx, name, pattern):
+    out = []
+    for line in lines:
+        if line.in_lang:
+            continue
+        hit = pattern.search(line.prose)
+        if hit:
+            out.append(Finding(ctx.path, line.no, name, hit.group(0)))
+    return out
+
+
+def check_money(lines, ctx):
+    return _scan(lines, ctx, "money", MONEY)
+
+
+def check_timezone(lines, ctx):
+    return _scan(lines, ctx, "timezone", TIMEZONE)
