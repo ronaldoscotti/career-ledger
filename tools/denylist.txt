@@ -1,8 +1,8 @@
-# Identifiers from the system this method was extracted from.
-# A hit here is always a failure, wherever it appears.
-Ronaldo
-Scotti
-Eduzz
-Orbit
-Specola
-Laravel
+# Identifiers that must never appear anywhere under method/, at any position,
+# inside a code fence, inside a code span or inside a translated sample.
+#
+# Unlike allowlist.txt, this list has no exemptions. It exists for the case
+# where a person adapts the method itself and their own employer, product or
+# client name slips into a file meant to be candidate-agnostic.
+#
+# One per line. Empty is a valid state and is how this template ships.

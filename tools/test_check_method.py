@@ -84,22 +84,22 @@ class TestTimezone(unittest.TestCase):
 class TestDenylist(unittest.TestCase):
     def setUp(self):
         self.ctx = Ctx()
-        self.ctx.denylist = {"Ronaldo", "Eduzz", "Laravel"}
+        self.ctx.denylist = {"Northwind", "Halloway", "Trakvia"}
 
     def test_flags_at_sentence_start(self):
-        found = check_denylist(parse_lines("Eduzz is the employer.\n"), self.ctx)
+        found = check_denylist(parse_lines("Northwind is the employer.\n"), self.ctx)
         self.assertEqual(len(found), 1)
 
     def test_flags_mid_sentence(self):
-        found = check_denylist(parse_lines("built at Eduzz for years\n"), self.ctx)
+        found = check_denylist(parse_lines("built at Northwind for years\n"), self.ctx)
         self.assertEqual(len(found), 1)
 
     def test_flags_inside_code_fence(self):
-        text = "```\nsite:lever.co Laravel\n```\n"
+        text = "```\nsite:lever.co Trakvia\n```\n"
         self.assertEqual(len(check_denylist(parse_lines(text), self.ctx)), 1)
 
     def test_flags_inside_code_span(self):
-        found = check_denylist(parse_lines("see `Eduzz` here\n"), self.ctx)
+        found = check_denylist(parse_lines("see `Northwind` here\n"), self.ctx)
         self.assertEqual(len(found), 1)
 
     def test_is_case_sensitive_on_word_boundary(self):
@@ -254,13 +254,13 @@ class TestRun(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp())
         (tmp / "method").mkdir()
         (tmp / "tools").mkdir()
-        (tmp / "tools" / "denylist.txt").write_text("Eduzz\n")
+        (tmp / "tools" / "denylist.txt").write_text("Northwind\n")
         (tmp / "tools" / "allowlist.txt").write_text("Lever\n")
         (tmp / "tools" / "contract-paths.txt").write_text("profile/**\n")
         (tmp / "method" / "bad.md").write_text(
             "the floor is US$120k\n"
             "overlap with UTC-3\n"
-            "built at Eduzz once\n"
+            "built at Northwind once\n"
             "they use Workday here\n"
             "use the Task tool\n"
             "a decisão é dele\n"
