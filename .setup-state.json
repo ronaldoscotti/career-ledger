@@ -1,0 +1,11 @@
+{
+  "updated": "",
+  "steps": {
+    "01-profile": {"status": "pending", "note": ""},
+    "02-experience": {"status": "pending", "note": "", "jobs": []},
+    "03-voice": {"status": "pending", "note": ""},
+    "04-resume": {"status": "pending", "note": ""},
+    "05-linkedin": {"status": "pending", "note": ""},
+    "06-first-triage": {"status": "pending", "note": ""}
+  }
+}
