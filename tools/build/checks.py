@@ -54,10 +54,20 @@ def keyword_coverage(resume: str, posting: str) -> float:
     return sum(1 for k in keywords if k in present) / len(keywords)
 
 
+# The page tree writes /Type /Pages and /Count in either order, so both are tried
+# before falling back. The outline tree also carries a /Count, which is why the
+# fallback is a last resort and not the primary read.
+PAGES_COUNT = re.compile(
+    rb"/Type\s*/Pages\b[^>]*?/Count\s+(\d+)"
+    rb"|/Count\s+(\d+)[^>]*?/Type\s*/Pages\b"
+)
+
+
 def count_pages_from_pdf(path) -> int:
     """Reads /Count off the PDF page tree with a regex rather than a dependency."""
-    data = open(path, "rb").read()
-    counts = [int(m) for m in re.findall(rb"/Type\s*/Pages\b[^>]*?/Count\s+(\d+)", data)]
+    with open(path, "rb") as handle:
+        data = handle.read()
+    counts = [int(g) for match in PAGES_COUNT.findall(data) for g in match if g]
     if not counts:
         counts = [int(m) for m in re.findall(rb"/Count\s+(\d+)", data)]
     return max(counts) if counts else 0
