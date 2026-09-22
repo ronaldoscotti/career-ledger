@@ -1,0 +1,8 @@
+# Identifiers from the system this method was extracted from.
+# A hit here is always a failure, wherever it appears.
+Ronaldo
+Scotti
+Eduzz
+Orbit
+Specola
+Laravel
