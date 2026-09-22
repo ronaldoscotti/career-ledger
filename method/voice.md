@@ -31,7 +31,7 @@ Cut until every sentence carries a fact, a number or a decision. A paragraph tha
 
 Any block the person will paste into a form field, an email client or a message box goes out as one paragraph per line, however long that line runs, with a blank line between paragraphs. Hard wrapping at any column is the failure. A textarea rewraps the text it receives, so a line break in the middle of a paragraph survives into what the reader sees.
 
-On 2026-08-14, a form answer wrapped at eighty columns went into an application textarea and arrived as a ragged column of fragments. The answer was good. It read as broken, and that is the only thing the reader could judge.
+On 2026-09-02, three whole applications went out wrapped at around eighty columns. The receiving fields preserved every line break, so each paragraph arrived cut into five ragged pieces. The answers were good. They read as broken, and that is the only thing the reader could judge.
 
 This rule is mechanical, and it is not a matter of taste.
 
