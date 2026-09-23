@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funnel</title>
+<style>
+/* ---------------------------------------------------------------
+   A ledger. Structural rule: anything that is a verifiable fact and
+   moves with time (dates, days, figures, status) is monospaced. What
+   is judgment is prose. The page can be read by the weight of its type.
+   No webfont: the page has to work with the network off.
+   --------------------------------------------------------------- */
+:root {
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --paper:   #F1F0EC;
+  --surface: #FBFAF8;
+  --text:    #191C21;
+  --muted:   #6E7278;
+  --line:    #DEDCD5;
+  --rail:    #C8C5BC;
+  --brass:   #8A6A22;
+  --sage:    #3F6B4C;
+  --rust:    #9C4F32;
+  --slate:   #3B4A57;
+  --lift: 0 1px 1px rgba(25,28,33,.04), 0 6px 18px -8px rgba(25,28,33,.16);
+  --lift-hi: 0 2px 3px rgba(25,28,33,.05), 0 14px 34px -12px rgba(25,28,33,.24);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper:   #121418;
+    --surface: #191C21;
+    --text:    #E6E3DB;
+    --muted:   #8B9098;
+    --line:    #282C33;
+    --rail:    #343941;
+    --brass:   #C9A961;
+    --sage:    #84A98C;
+    --rust:    #C7805F;
+    --slate:   #9BB0C2;
+    --lift: none;
+    --lift-hi: 0 14px 34px -14px rgba(0,0,0,.7);
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; color-scheme: light dark; }
+body {
+  margin: 0; background: var(--paper); color: var(--text);
+  font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  padding: 44px 22px 96px; -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+
+/* --- header: the thesis --- */
+.head { display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+.head > div:first-child { flex: 1 1 22ch; min-width: 0; }
+.eyebrow {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 10px;
+}
+h1 {
+  font-family: var(--serif); font-weight: 700; font-size: clamp(30px, 5vw, 44px);
+  line-height: 1.05; letter-spacing: -.025em; margin: 0; max-width: 22ch;
+}
+h1 .quiet { color: var(--muted); }
+h1 .target { color: var(--brass); }
+
+/* Actions live in the header, not in the filter row: there they pushed the line
+   and dropped underneath on their own. */
+.actions { display: flex; gap: 7px; flex-wrap: wrap; padding-top: 6px; }
+.action {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+  text-transform: uppercase; white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--brass) 40%, transparent);
+  background: transparent; color: var(--brass);
+  border-radius: 3px; padding: 6px 11px; cursor: pointer;
+  transition: background .18s, border-color .18s;
+}
+.action:hover { background: color-mix(in srgb, var(--brass) 12%, transparent); border-color: var(--brass); }
+.action .n { opacity: .6; font-variant-numeric: tabular-nums; }
+
+/* --- what the day is asking for: pills, not running prose --- */
+.chases { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chases .k {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--muted); margin-right: 4px;
+}
+.chase {
+  font-family: inherit; font-size: 12.5px; line-height: 1.2;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--line); border-left: 2px solid var(--rail);
+  border-radius: 3px; padding: 5px 9px; cursor: pointer;
+  display: inline-flex; align-items: baseline; gap: 6px;
+  transition: border-color .18s, transform .18s;
+}
+.chase:hover { border-color: var(--rail); transform: translateY(-1px); }
+.chase .d { font-family: var(--mono); font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chase.due { border-left-color: var(--brass); }
+.chase.due .d { color: var(--brass); }
+.chase.cold { border-left-color: var(--rust); }
+.chase.cold .d { color: var(--rust); }
+.score { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+.score b { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* --- the funnel: it is the chart and it is the filter, one piece --- */
+.funnel {
+  margin: 26px 0 26px; padding: 14px 0 12px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.stage {
+  display: grid; grid-template-columns: 124px 1fr 3.5ch;
+  align-items: center; gap: 14px; padding: 2px 0;
+}
+.stage.out { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); align-items: start; }
+.stage.out .stage-label, .stage.out .stage-n { padding-top: 0; }
+.stage.out .rail { height: 7px; opacity: .6; }
+.subs { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 6px; }
+.sub {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase;
+  background: none; border: none; padding: 0; cursor: pointer; color: var(--muted);
+  display: inline-flex; align-items: center; gap: 5px; transition: color .18s;
+}
+.sub::before { content: ""; width: 6px; height: 6px; border-radius: 1px; background: var(--c); opacity: .8; }
+.sub b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.sub:hover, .sub.active { color: var(--text); }
+/* The one thing the funnel knows that nothing else does. */
+.diagnosis { margin-top: 7px; font-size: 11.5px; line-height: 1.45; color: var(--muted); max-width: 66ch; }
+.diagnosis b { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+.diagnosis .rejected { color: var(--rust); }
+.diagnosis .failed { color: var(--brass); }
+.stage-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--muted); background: none; border: none; padding: 4px 0;
+  cursor: pointer; text-align: left; transition: color .18s;
+}
+.stage-label:hover { color: var(--text); }
+.stage.active .stage-label { color: var(--text); font-weight: 700; }
+.rail { display: flex; gap: 1px; height: 14px; min-width: 3px; transition: width .4s cubic-bezier(.2,.8,.2,1); }
+.seg {
+  border: none; padding: 0; min-width: 3px; cursor: pointer;
+  background: var(--c); border-radius: 1px; opacity: .78;
+  transition: opacity .18s, transform .18s;
+}
+.seg:hover, .seg.active { opacity: 1; transform: scaleY(1.22); }
+.stage-n { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; color: var(--text); }
+.stage.empty .stage-n, .stage.out .stage-n { color: var(--muted); }
+/* Triage sits above the funnel because it is the widest part of the search.
+   Hiding it would make the search look smaller and more successful than it was. */
+.stage.read { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.stage.read .rail { height: 7px; opacity: .45; }
+.active-filter {
+  margin: 12px 0 0; display: flex; align-items: center; gap: 9px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.clear { font: inherit; background: none; border: none; padding: 0; cursor: pointer; color: var(--text); border-bottom: 1px solid var(--rail); }
+.clear:hover { color: var(--brass); border-bottom-color: var(--brass); }
+
+/* --- stage header inside the list --- */
+.group {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: baseline; gap: 9px;
+  margin: 22px 0 8px; padding: 7px 0 6px; background: var(--paper);
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted); border-bottom: 1px solid var(--line);
+}
+.group:first-child { margin-top: 0; }
+.group .n { font-weight: 400; opacity: .6; font-variant-numeric: tabular-nums; }
+.group .rule { flex: 1; height: 1px; background: var(--line); }
+
+/* --- card --- */
+.card {
+  position: relative; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 4px;
+  padding: 15px 18px 13px 22px; margin-bottom: 9px; box-shadow: var(--lift);
+  display: grid; grid-template-columns: 1fr 236px; gap: 4px 26px;
+  transition: box-shadow .22s ease, border-color .22s ease, transform .22s ease;
+}
+.card::before {
+  content: ""; position: absolute; left: 0; top: -1px; bottom: -1px; width: 3px;
+  background: var(--mark, var(--rail)); border-radius: 4px 0 0 4px;
+}
+.card:hover { box-shadow: var(--lift-hi); border-color: var(--rail); transform: translateY(-1px); }
+.card.faded { opacity: .55; }
+.card.faded:hover { opacity: .82; }
+@keyframes hook { 0%, 70% { border-color: var(--brass); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brass) 35%, transparent); } }
+.card.hooked { animation: hook 1.4s ease-out; }
+
+.top { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-bottom: 2px; }
+.mark {
+  width: 24px; height: 24px; flex: none; border-radius: 4px;
+  background: var(--paper); border: 1px solid var(--line);
+  display: grid; place-items: center;
+  font-family: var(--serif); font-size: 12px; font-weight: 700; color: var(--muted);
+}
+.company {
+  font-family: var(--serif); font-size: 19.5px; font-weight: 700; letter-spacing: -.015em;
+  color: inherit; background: transparent; border: 1px solid transparent; border-radius: 3px;
+  padding: 1px 5px; margin-left: -5px; width: 15ch; max-width: 100%;
+  transition: background .18s, border-color .18s;
+}
+/* One spine: mark, name, role and prose all start on the same margin. */
+.role {
+  font-size: 13.5px; color: var(--muted); width: 100%; margin: 1px 0 0;
+  font-family: inherit; background: transparent; border: 1px solid transparent;
+  border-radius: 3px; padding: 2px 6px; margin-left: -6px;
+  transition: background .18s, border-color .18s;
+}
+
+/* STATUS: where the application is. Solid chip, next to the name. */
+.tag {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  border: none; border-radius: 3px; padding: 4px 9px; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background-color: color-mix(in srgb, currentColor 16%, var(--surface));
+  transition: background-color .18s, box-shadow .18s;
+}
+.tag:hover { background-color: color-mix(in srgb, currentColor 26%, var(--surface)); }
+
+/* FIT and LEVEL are frozen by the tracker, so they are rendered as text and
+   never as a control: an input that refuses to save is worse than no input. */
+.fit-line { align-items: center; gap: 6px; }
+.meter { display: inline-flex; gap: 2px; align-items: center; }
+.meter i { width: 3px; height: 9px; border-radius: 1px; background: var(--line); }
+.meter i.on { background: currentColor; }
+.level { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.locked {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); border: 1px solid var(--line); border-radius: 2px;
+  padding: 0 4px; white-space: nowrap;
+}
+.why { font-weight: 400; letter-spacing: .08em; text-transform: none; font-size: 9.5px; opacity: .85; }
+
+/* --- the fold: no long field opens the whole page --- */
+.field { --bg: var(--surface); margin-top: 10px; }
+.field label, .field .k-note {
+  display: block; font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+}
+.fold { position: relative; }
+.clamped { max-height: var(--fold, 8em); overflow: hidden; }
+.field.open .clamped { max-height: none; overflow: visible; }
+.field.has-more:not(.open) .fold::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2.4em;
+  background: linear-gradient(to bottom, transparent, var(--bg) 88%); pointer-events: none;
+}
+.more {
+  display: none; margin-top: 3px;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
+  background: none; border: none; padding: 0; cursor: pointer; color: var(--muted);
+  border-bottom: 1px solid transparent; transition: color .18s, border-color .18s;
+}
+.field.has-more .more, .field.open .more { display: inline-block; }
+.more:hover { color: var(--brass); border-bottom-color: var(--brass); }
+
+.prose { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 0; max-width: 70ch; }
+textarea, input[type="text"], input[type="date"] {
+  font-family: var(--sans); font-size: 13.5px; line-height: 1.5;
+  color: var(--text); background: transparent;
+  border: 1px solid transparent; border-radius: 3px;
+  transition: background .18s, border-color .18s;
+}
+textarea {
+  width: 100%; resize: vertical; min-height: 30px; field-sizing: content;
+  padding: 4px 7px; margin-left: -7px; display: block;
+}
+textarea:hover, input:hover { border-color: var(--line); }
+textarea:focus, input:focus, select:focus { outline: none; border-color: var(--rail); background: var(--paper); }
+textarea.clamped:focus { max-height: none; overflow: auto; }
+
+/* facts column */
+.facts { font-family: var(--mono); font-size: 11px; text-align: right; }
+.facts .row { display: flex; justify-content: flex-end; align-items: baseline; gap: 8px; margin-bottom: 4px; color: var(--text); }
+.facts .row > span:last-child { overflow-wrap: anywhere; }
+.facts .k { flex: none; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; font-size: 9.5px; padding-top: 1px; }
+.facts input { font-family: var(--mono); font-size: 11px; text-align: right; padding: 1px 4px; margin-right: -4px; min-width: 0; }
+.facts input[type="text"] { width: 17ch; }
+/* comp is long prose disguised as a number: left aligned, like a margin note. */
+.note { text-align: left; border-left: 1px solid var(--line); padding-left: 9px; }
+.note textarea { font-family: var(--mono); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.files { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; margin-top: 10px; }
+.files a {
+  font-size: 10px; letter-spacing: .04em; color: var(--slate); text-decoration: none;
+  border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px;
+  transition: border-color .18s, color .18s;
+}
+.files a:hover { border-color: var(--slate); color: var(--text); }
+
+.silence {
+  margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line);
+  font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.silence.due { color: var(--brass); }
+.silence.cold { color: var(--rust); }
+.silence .num { font-weight: 700; }
+.reset, .demote {
+  font-family: inherit; font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+  background: none; border: none; padding: 0; cursor: pointer; color: var(--muted);
+  border-bottom: 1px solid transparent; transition: color .18s, border-color .18s;
+}
+.reset:hover { color: var(--brass); border-bottom-color: var(--brass); }
+.demote { margin-top: 10px; display: inline-block; opacity: 0; transition: opacity .18s, color .18s; }
+.card:hover .demote, .demote:focus-visible { opacity: 1; }
+.demote:hover { color: var(--rust); border-bottom-color: var(--rust); }
+
+/* triage */
+details { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 20px; }
+summary {
+  cursor: pointer; font-family: var(--mono); font-size: 11px;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted); transition: color .18s;
+}
+summary:hover { color: var(--text); }
+summary::marker { color: var(--rail); }
+.triage-why { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); max-width: 74ch; }
+table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+th, td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-weight: 400; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+td.name { font-weight: 600; }
+td.reason { color: var(--muted); }
+td.when { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+td .field { --bg: var(--paper); margin-top: 0; }
+
+#saved {
+  position: fixed; bottom: 22px; right: 22px; z-index: 9; max-width: 42ch;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--text); color: var(--paper);
+  padding: 8px 14px; border-radius: 3px; opacity: 0; pointer-events: none;
+}
+#saved.error { background: var(--rust); color: #fff; text-transform: none; letter-spacing: .02em; }
+
+footer {
+  margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
+  font-size: 12.5px; color: var(--muted); max-width: 74ch;
+}
+code {
+  font-family: var(--mono); font-size: 11.5px; color: var(--text);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px;
+}
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; border-radius: 2px; }
+
+@media (max-width: 760px) {
+  body { padding: 30px 16px 70px; }
+  .card { grid-template-columns: 1fr; padding-left: 20px; }
+  .facts { text-align: left; margin-top: 14px; }
+  .facts .row, .files { justify-content: flex-start; }
+  .facts input { text-align: left; }
+  .stage { grid-template-columns: 96px 1fr 3.5ch; gap: 9px; }
+  .stage-label { font-size: 9px; letter-spacing: .08em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  .card:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <div>
+      <p class="eyebrow" id="eyebrow">Funnel</p>
+      <h1 id="thesis"></h1>
+    </div>
+    <div class="actions" id="actions"></div>
+  </header>
+
+  <div class="chases" id="chases"></div>
+  <p class="score" id="score"></p>
+
+  <div class="funnel" id="funnel"></div>
+  <p class="active-filter" id="active-filter" hidden></p>
+
+  <div id="list"></div>
+
+  <details id="triage-box">
+    <summary id="triage-summary">Read and not pursued</summary>
+    <p class="triage-why">Every posting that was read and closed without an application. In a real search this
+      list runs several times longer than the funnel above it, and that is the honest shape of the work.</p>
+    <table id="triage"></table>
+  </details>
+
+  <footer>
+    Source of truth: <code>applications/applications.json</code>, written by <code>tools/serve.py</code> and versioned in git.
+    Status, situation, next action and the facts save themselves. Fit and level are read-only on purpose:
+    they are the judgment of the day the posting was read, the tracker refuses to change them, and they are
+    what tells you later why you applied. What moves with time belongs in situation and next action.
+  </footer>
+
+</div>
+<div id="saved"></div>
+
+<script type="module">
+/* No CDN and no webfont: the page has to paint with the network off. Animation
+   is the platform's own WAAPI, and reduced motion turns it off entirely. */
+const CALM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const animate = (el, keyframes, opts = {}) => {
+  if (CALM || !el) return;
+  el.animate?.(keyframes, {
+    duration: (opts.duration ?? 0.42) * 1000,
+    delay: (opts.delay ?? 0) * 1000,
+    easing: "cubic-bezier(.2,.8,.2,1)", fill: "both",
+  });
+};
+
+const STATUS = {
+  process:  { label: "in process", color: "var(--sage)",  waiting: true },
+  sent:     { label: "awaiting",   color: "var(--slate)", waiting: true },
+  ready:    { label: "in the drawer", color: "var(--brass)" },
+  offer:    { label: "offer",      color: "var(--sage)" },
+  limbo:    { label: "limbo",      color: "var(--muted)", cold: true },
+  paused:   { label: "paused",     color: "var(--brass)", cold: true },
+  rejected: { label: "rejected",   color: "var(--rust)",  cold: true },
+  failed:   { label: "failed",     color: "var(--rust)",  cold: true },
+  withdrew: { label: "withdrew",   color: "var(--muted)", cold: true },
+};
+const UNKNOWN = { label: "unknown", color: "var(--rust)", cold: true };
+
+/* The funnel is the spine of the page: it orders the list, groups the headers
+   and is the filter itself. One piece, instead of a chart and a row of chips. */
+const STAGES = [
+  { id: "drawer",  label: "in the drawer", status: ["ready"] },
+  { id: "sent",    label: "sent",          status: ["sent"] },
+  { id: "process", label: "in process",    status: ["process"] },
+  { id: "offer",   label: "offer",         status: ["offer"] },
+  { id: "closed",  label: "closed",        status: ["limbo", "paused", "rejected", "failed", "withdrew"], out: true },
+];
+const POS = {};
+STAGES.forEach((e, i) => e.status.forEach((k, j) => POS[k] = { stage: i, sub: j }));
+const LAST = { stage: STAGES.length, sub: 0 };
+
+const LEVELS = {
+  strong:  { label: "strong fit",      color: "var(--sage)",  order: 0 },
+  good:    { label: "good opportunity", color: "var(--slate)", order: 1 },
+  stretch: { label: "a stretch",       color: "var(--brass)", order: 2 },
+};
+const NO_LEVEL = { label: "unknown level", color: "var(--rust)", order: 3 };
+const DUE = 5, COLD = 12, LIMBO = 21;   // days of silence: follow up, going cold, death by silence
+
+let DB = null, filter = null, timer = null, firstPaint = true;
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const today = () => new Date().toISOString().slice(0, 10);
+const daysSince = (iso) => {
+  if (!iso) return null;
+  const ms = new Date(today() + "T00:00") - new Date(iso + "T00:00");
+  return Math.max(0, Math.round(ms / 86400000));
+};
+const status = (v) => STATUS[v.status] || UNKNOWN;
+const level = (v) => LEVELS[v.level] || NO_LEVEL;
+const pos = (v) => POS[v.status] || LAST;
+const cards = () => DB.applications;
+const triage = () => DB.triage || [];
+
+async function load() {
+  const r = await fetch("applications.json", { cache: "no-store" });
+  if (!r.ok) throw new Error(r.status);
+  DB = await r.json();
+  DB.applications ||= [];
+  DB.triage ||= [];
+  paint();
+}
+
+function save() {
+  clearTimeout(timer);
+  timer = setTimeout(async () => {
+    const el = $("#saved");
+    let text = "saved", failed = false;
+    try {
+      const r = await fetch("applications.json", {
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(DB),
+      });
+      /* The server runs the same validation as the tracker, so a card the tracker
+         would reject never reaches disk. Say why, or the edit looks accepted. */
+      if (!r.ok) throw new Error(r.statusText || r.status);
+    } catch (e) { text = `not saved: ${e.message}`; failed = true; }
+    el.textContent = text;
+    el.className = failed ? "error" : "";
+    animate(el, { opacity: [0, 1], transform: ["translateY(6px)", "none"] });
+    setTimeout(() => animate(el, { opacity: 0 }, { duration: 0.3 }), failed ? 6000 : 1500);
+  }, 400);
+}
+
+/* The thesis: the page opens by saying the one thing that needs you today. */
+function thesis() {
+  const waiting = cards()
+    .filter(v => status(v).waiting)
+    .map(v => ({ ...v, days: daysSince(v.moved_on) ?? 0 }))
+    .sort((a, b) => b.days - a.days);
+  const due = waiting.filter(v => v.days >= DUE);
+  const drawer = cards().filter(v => v.status === "ready");
+
+  let h1;
+  if (due.length === 1) {
+    h1 = `Today: chase <span class="target">${esc(due[0].company)}</span>.`;
+  } else if (due.length > 1) {
+    h1 = `Today: chase <span class="target">${due.length} stalled processes</span>.`;
+  } else if (waiting.length) {
+    h1 = `Nothing overdue. <span class="quiet">Just wait.</span>`;
+  } else if (drawer.length) {
+    h1 = `Nothing awaiting. <span class="target">Send what is in the drawer.</span>`;
+  } else if (cards().length) {
+    h1 = `Funnel closed. <span class="quiet">Open the next one.</span>`;
+  } else if (triage().length) {
+    h1 = `Nothing applied to yet. <span class="target">${triage().length} read and closed.</span>`;
+  } else {
+    h1 = `Empty ledger. <span class="quiet">Nothing read yet.</span>`;
+  }
+  $("#thesis").innerHTML = h1;
+
+  /* Each chase is a clickable target that jumps to the card. It used to be a
+     running paragraph of thirteen names, which nobody reads and nobody clicks. */
+  $("#chases").innerHTML = due.length
+    ? `<span class="k">chase today</span>` + due.map(v =>
+        `<button class="chase ${v.days >= COLD ? "cold" : "due"}" data-go="${esc(v.id)}"
+                 title="${esc(v.company)} · ${v.days} days of silence">
+           ${esc(v.company)} <span class="d">${v.days}d</span></button>`).join("")
+    : "";
+
+  const score = [];
+  if (!cards().length && !triage().length) {
+    score.push(`Nothing here yet. Start a card with <code>+ new</code> above, or with <code>python3 tools/tracker.py new</code>`);
+    score.push(`both write the same file`);
+  } else {
+    const live = cards().filter(v => !status(v).cold).length;
+    score.push(`<b>${live}</b> open ${live === 1 ? "bet" : "bets"}`);
+    if (drawer.length) score.push(`<b>${drawer.length}</b> with material ready and not sent`);
+    if (triage().length) score.push(`<b>${triage().length}</b> read and not pursued`);
+    if (!due.length && waiting.length) score.push(`longest silence: <b>${waiting[0].days} days</b>, inside the ${DUE} day line`);
+  }
+  $("#score").innerHTML = score.join(" · ") + ".";
+
+  $("#eyebrow").textContent = `Funnel · ${today()}`;
+}
+
+/* Sent, no answer, and the silence is past the line: a candidate for limbo. */
+const limboable = () => cards().filter(v => v.status === "sent" && (daysSince(v.moved_on) ?? 0) >= LIMBO);
+
+function silence(v) {
+  if (!status(v).waiting) return "";
+  const d = daysSince(v.moved_on);
+  if (d === null || d === 0) return "";          // movement today needs no saying
+  const cls = d >= COLD ? "cold" : d >= DUE ? "due" : "";
+  return `<div class="silence ${cls}">
+    <span class="num">${d}</span> ${d === 1 ? "day" : "days"} of silence
+    · <button class="reset" data-moved="${esc(v.id)}" title="Record that something moved today">reset</button></div>`;
+}
+
+function field(v, key, label) {
+  return `<div class="field">
+    <label for="${esc(v.id)}-${key}">${label}</label>
+    <div class="fold">
+      <textarea class="clamped" style="--fold:9em" id="${esc(v.id)}-${key}"
+                data-id="${esc(v.id)}" data-k="${key}" rows="1">${esc(v[key])}</textarea>
+    </div>
+    <button class="more" type="button">read more</button>
+  </div>`;
+}
+
+const fact = (k, inner) => `<div class="row"><span class="k">${k}</span> ${inner}</div>`;
+const dateInput = (v, key) =>
+  `<input type="date" data-id="${esc(v.id)}" data-k="${key}" value="${esc(v[key])}" aria-label="${key.replace(/_/g, " ")}">`;
+const textInput = (v, key) =>
+  `<input type="text" data-id="${esc(v.id)}" data-k="${key}" value="${esc(v[key])}" aria-label="${key}">`;
+
+function paintFunnel() {
+  const c = {};
+  cards().forEach(v => c[v.status] = (c[v.status] || 0) + 1);
+  const totals = STAGES.map(e => e.status.reduce((s, k) => s + (c[k] || 0), 0));
+  /* The scale is the scale of the live stages. Closed is almost always the
+     biggest pile and, measured on the same ruler, would become the hero of the
+     chart with nothing to say: it enters as a composition band, fixed width. */
+  const ceiling = Math.max(1, ...totals.filter((_, i) => !STAGES[i].out));
+
+  const rows = STAGES.map((e, i) => {
+    const n = totals[i];
+    const active = filter && (filter.id === e.id || e.status.includes(filter.id));
+    const used = e.status.filter(k => c[k]);
+    const segs = used.map(k =>
+      `<button class="seg${filter?.id === k ? " active" : ""}" data-f="${k}" style="--c:${STATUS[k].color};flex:${c[k]}"
+               title="${STATUS[k].label} · ${c[k]}" aria-label="Filter by ${STATUS[k].label}, ${c[k]}"></button>`).join("");
+    const width = e.out ? (n ? 100 : 0) : n / ceiling * 100;
+    /* Only the closed stage has real subcategories; naming the segments there
+       saves the hover and gives back what the row of chips did, without the row. */
+    const legend = e.out && used.length > 1
+      ? `<div class="subs">${used.map(k =>
+          `<button class="sub${filter?.id === k ? " active" : ""}" data-f="${k}"
+                   style="--c:${STATUS[k].color}">${STATUS[k].label} <b>${c[k]}</b></button>`).join("")}</div>`
+      : "";
+    return `<div class="stage${e.out ? " out" : ""}${n ? "" : " empty"}${active ? " active" : ""}">
+      <button class="stage-label" data-f="${e.id}">${e.label}</button>
+      <div><div class="rail" style="width:${width.toFixed(1)}%">${segs}</div>${legend}${e.out ? diagnosis(c) : ""}</div>
+      <span class="stage-n">${n}</span>
+    </div>`;
+  });
+
+  /* Triage is part of the shape of the search, so it is drawn in the funnel and
+     not only tucked into a table at the bottom. */
+  const read = triage().length;
+  rows.unshift(`<div class="stage read${read ? "" : " empty"}">
+    <button class="stage-label" data-triage="1">read, not pursued</button>
+    <div><div class="rail" style="width:${read ? 100 : 0}%">${read ? `<span class="seg" style="--c:var(--rail);flex:1"></span>` : ""}</div></div>
+    <span class="stage-n">${read}</span>
+  </div>`);
+
+  $("#funnel").innerHTML = rows.join("");
+
+  const fa = $("#active-filter");
+  fa.hidden = !filter;
+  if (filter) fa.innerHTML = `filter: ${esc(filter.label)} <button class="clear" data-f="">× show all</button>`;
+
+  $("#actions").innerHTML =
+    (limboable().length ? `<button class="action" id="to-limbo">↓ limbo <span class="n">${limboable().length}</span></button>` : "") +
+    `<button class="action" id="new">+ new</button>`;
+}
+
+/* rejected and failed are diagnostic opposites, and the count of each answers a
+   different question. Folding them into one "closed" number throws that away. */
+function diagnosis(c) {
+  const parts = [];
+  if (c.rejected) parts.push(`<b class="rejected">rejected ${c.rejected}</b> never reached an interview, so what is not converting is the material`);
+  if (c.failed) parts.push(`<b class="failed">failed ${c.failed}</b> interviewed and did not pass, so what is not converting is the call`);
+  return parts.length ? `<p class="diagnosis">${parts.join(" · ")}.</p>` : "";
+}
+
+function paint() {
+  /* FLIP: remember where each card sits before repainting, so it can travel. */
+  const before = new Map();
+  document.querySelectorAll("[data-card]").forEach(el => before.set(el.dataset.card, el.getBoundingClientRect().top));
+
+  const ordered = [...cards()].sort((a, b) =>
+    pos(a).stage - pos(b).stage ||
+    pos(a).sub - pos(b).sub ||
+    level(a).order - level(b).order ||
+    (daysSince(b.moved_on) ?? 0) - (daysSince(a.moved_on) ?? 0) ||
+    String(a.company).localeCompare(String(b.company)));
+  const visible = filter ? ordered.filter(v => filter.status.includes(v.status)) : ordered;
+
+  let stageNow = -1;
+  $("#list").innerHTML = visible.map(v => {
+    const st = status(v), lv = level(v);
+    let header = "";
+    if (pos(v).stage !== stageNow) {
+      stageNow = pos(v).stage;
+      const e = STAGES[stageNow];
+      const n = visible.filter(x => pos(x).stage === stageNow).length;
+      header = `<h2 class="group"><span>${e ? e.label : "unknown status"}</span><span class="n">${n}</span><span class="rule"></span></h2>`;
+    }
+    const files = Object.entries(v.files || {});
+    return header + `<article class="card${st.cold ? " faded" : ""}" data-card="${esc(v.id)}" style="--mark:${st.color}">
+      <div>
+        <div class="top">
+          <span class="mark">${esc(String(v.company).trim()[0] || "?")}</span>
+          <input class="company" type="text" data-id="${esc(v.id)}" data-k="company" value="${esc(v.company)}" aria-label="Company">
+          <select class="tag" data-id="${esc(v.id)}" data-k="status" aria-label="Status" style="color:${st.color}">
+            ${Object.entries(STATUS).map(([k, s]) => `<option value="${k}"${k === v.status ? " selected" : ""}>${s.label}</option>`).join("")}
+            ${STATUS[v.status] ? "" : `<option value="${esc(v.status)}" selected>${esc(v.status)} (unknown)</option>`}
+          </select>
+          <input class="role" type="text" data-id="${esc(v.id)}" data-k="role" value="${esc(v.role)}" aria-label="Role">
+        </div>
+        <div class="field">
+          <label>reading <span class="locked">locked <span class="why">written the day the posting was read</span></span></label>
+          <div class="fold"><p class="prose clamped" style="--fold:7.8em">${esc(v.fit) || "No reading was recorded for this card."}</p></div>
+          <button class="more" type="button">read more</button>
+        </div>
+        ${field(v, "situation", "situation")}
+        ${field(v, "next", "next action")}
+      </div>
+      <div class="facts">
+        <div class="row fit-line" style="color:${lv.color}" title="Level is frozen with the reading: the tracker refuses to change it">
+          <span class="k">fit</span>
+          <span class="meter">${[0, 1, 2].map(i => `<i class="${i <= 2 - lv.order ? "on" : ""}"></i>`).join("")}</span>
+          <span class="level">${lv.label}</span>
+          <span class="locked">locked</span>
+        </div>
+        ${fact("triaged", dateInput(v, "triaged_on"))}
+        ${fact("sent", dateInput(v, "sent_on"))}
+        ${fact("moved", `<span>${esc(v.moved_on)}</span>`)}
+        ${fact("source", textInput(v, "site"))}
+        ${fact("resume", textInput(v, "resume"))}
+        <div class="field note">
+          <span class="k-note">comp</span>
+          <div class="fold">
+            <textarea class="clamped" style="--fold:9em" rows="1"
+                      data-id="${esc(v.id)}" data-k="comp" aria-label="Compensation">${esc(v.comp)}</textarea>
+          </div>
+          <button class="more" type="button">read more</button>
+        </div>
+        ${files.length ? `<div class="files">${files.map(([label, path]) =>
+          `<a href="${esc(path)}" title="${esc(path)}">${esc(label)}</a>`).join("")}</div>` : ""}
+        ${silence(v)}
+        <div><button class="demote" data-demote="${esc(v.id)}">to triage</button></div>
+      </div>
+    </article>`;
+  }).join("") || emptyList();
+
+  paintFunnel();
+
+  $("#triage-summary").textContent = `Read and not pursued (${triage().length})`;
+  $("#triage").innerHTML = `<tr><th>Company</th><th>Role</th><th>Why not</th><th>Date</th></tr>` +
+    (triage().map(t =>
+      `<tr><td class="name">${esc(t.company)}</td><td>${esc(t.role)}</td><td class="reason">
+        <div class="field">
+          <div class="fold"><div class="clamped" style="--fold:3.2em">${esc(t.reason)}</div></div>
+          <button class="more" type="button">read more</button>
+        </div></td><td class="when">${esc(t.date)}</td></tr>`).join("")
+      || `<tr><td colspan="4" class="reason">Nothing closed at triage yet.</td></tr>`);
+
+  thesis();
+  foldAll();
+
+  const els = [...document.querySelectorAll("[data-card]")];
+  if (firstPaint) {
+    firstPaint = false;
+    animate($("#thesis"), { opacity: [0, 1], transform: ["translateY(8px)", "none"] }, { duration: 0.5 });
+    animate($("#chases"), { opacity: [0, 1] }, { duration: 0.5, delay: 0.08 });
+    document.querySelectorAll(".rail").forEach((el, i) =>
+      animate(el, { transform: ["scaleX(0)", "none"] }, { duration: 0.55, delay: 0.1 + i * 0.06 }));
+    /* Staggered with a ceiling: the 65th card would enter at 3s, invisible until then. */
+    els.forEach((el, i) =>
+      animate(el, { opacity: [0, 1], transform: ["translateY(14px)", "none"] }, { delay: 0.16 + Math.min(i, 10) * 0.045 }));
+  } else {
+    els.forEach(el => {                            // second half of the FLIP
+      const y0 = before.get(el.dataset.card);
+      if (y0 === undefined) return animate(el, { opacity: [0, 1] }, { duration: 0.3 });
+      const dy = y0 - el.getBoundingClientRect().top;
+      if (Math.abs(dy) > 1) animate(el, { transform: [`translateY(${dy}px)`, "none"] });
+    });
+  }
+}
+
+function emptyList() {
+  if (filter) return `<p class="prose">Nothing with that status.</p>`;
+  if (triage().length) return `<p class="prose">No applications yet. Everything read so far was closed at triage,
+    which is the table below. A card lands here the day you decide a posting is worth the work.</p>`;
+  return `<p class="prose">The ledger is empty. A card starts the day you read a posting and decide to pursue it,
+    and the reading you write that day is what the card is for.</p>`;
+}
+
+/* The fold only appears where the text really overflows: the button is always in
+   the HTML and CSS reveals it, so there is no DOM to build across 65 cards. */
+function fold(el) {
+  const f = el.closest(".field");
+  if (!f || f.classList.contains("open") || el === document.activeElement) return;
+  f.classList.toggle("has-more", el.scrollHeight > el.clientHeight + 4);
+}
+const foldAll = () => document.querySelectorAll(".clamped").forEach(fold);
+document.fonts?.ready.then(foldAll);           // the metric is only trustworthy with the final font
+addEventListener("resize", foldAll);
+document.addEventListener("focusout", (e) => e.target.matches?.(".clamped") && fold(e.target));
+
+function goTo(id) {
+  const el = document.querySelector(`[data-card="${CSS.escape(id)}"]`);
+  if (!el) { filter = null; paint(); return requestAnimationFrame(() => goTo(id)); }
+  el.scrollIntoView({ behavior: CALM ? "auto" : "smooth", block: "center" });
+  el.classList.remove("hooked"); void el.offsetWidth; el.classList.add("hooked");
+}
+
+function apply(e) {
+  const t = e.target, id = t.dataset.id;
+  if (!id) return;
+  const item = cards().find(v => v.id === id);
+  const key = t.dataset.k;
+  if (!item || item[key] === t.value) return;    // dedupe: input and change fire together
+  item[key] = t.value;
+  /* Only a change of stage is movement. Stamping moved_on on every keystroke
+     would zero the silence counter just for writing a note, and the page would
+     stop telling you who has gone quiet, which is its whole job. */
+  if (key === "status") {
+    item.moved_on = today();
+    /* Every status but `ready` asserts the application left the repo, and the
+       tracker requires a date for that. Stamp it, or the save comes back a 400. */
+    if (t.value !== "ready" && !item.sent_on) item.sent_on = today();
+    paint();
+  }
+  save();
+}
+document.addEventListener("input", apply);       // textareas and text inputs
+document.addEventListener("change", apply);      // selects and dates, where input is not universal
+
+document.addEventListener("click", (e) => {
+  const more = e.target.closest(".more");
+  if (more) {
+    const f = more.closest(".field");
+    const open = f.classList.toggle("open");
+    more.textContent = open ? "read less" : "read more";
+    if (!open) fold(f.querySelector(".clamped"));
+    return;
+  }
+
+  const go = e.target.closest("[data-go]");
+  if (go) return goTo(go.dataset.go);
+
+  if (e.target.closest("[data-triage]")) {
+    const box = $("#triage-box");
+    box.open = true;
+    return box.scrollIntoView({ behavior: CALM ? "auto" : "smooth", block: "start" });
+  }
+
+  const f = e.target.closest("[data-f]");
+  if (f) {
+    const id = f.dataset.f;
+    const stage = STAGES.find(x => x.id === id);
+    filter = !id || filter?.id === id ? null
+      : stage ? { id, label: stage.label, status: stage.status }
+              : { id, label: STATUS[id].label, status: [id] };
+    return paint();
+  }
+
+  const moved = e.target.dataset.moved;
+  if (moved) {
+    cards().find(v => v.id === moved).moved_on = today();
+    paint(); return save();
+  }
+
+  if (e.target.closest("#to-limbo")) {
+    const targets = limboable();
+    if (!confirm(`Send ${targets.length} to limbo? Total silence for ${LIMBO}+ days:\n\n${targets.map(v => v.company).join("\n")}`)) return;
+    targets.forEach(v => { v.status = "limbo"; v.moved_on = today(); });
+    paint(); return save();
+  }
+
+  if (e.target.id === "new") return newCard();
+
+  /* A posting that never became contact is not an application. Deleting it would
+     make the funnel look smaller; triage is where it belongs, same as the tracker. */
+  const down = e.target.dataset.demote;
+  if (down) {
+    const item = cards().find(v => v.id === down);
+    const reason = prompt(`Move ${item.company} to triage. Why was it not pursued?`);
+    if (!reason) return;
+    DB.applications = cards().filter(v => v.id !== down);
+    DB.triage.push({ company: item.company, role: item.role, reason, date: today() });
+    paint(); save();
+  }
+});
+
+/* fit and level are frozen once written, so they are asked for here and nowhere
+   else. A card without a reading is a card that cannot say why it was opened. */
+function newCard() {
+  const company = prompt("Company?"); if (!company) return;
+  const role = prompt("Role?") || "";
+  const site = prompt("Where was it posted? (job board or careers page)") || "";
+  const lvl = (prompt(`Level: ${Object.keys(LEVELS).join(", ")}`, "good") || "").trim();
+  if (!LEVELS[lvl]) return alert(`Level has to be one of: ${Object.keys(LEVELS).join(", ")}.`);
+  const fit = (prompt("The reading. Why this posting, today? This is frozen once saved.") || "").trim();
+  if (!fit) return alert("A card needs a reading. Without it the funnel cannot say why you applied.");
+
+  const slug = company.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "card";
+  let id = `${slug}-${today().slice(0, 7)}`;
+  while (cards().some(v => v.id === id)) id += "x";
+
+  DB.applications.unshift({
+    id, company, site, role, status: "ready", level: lvl,
+    triaged_on: today(), sent_on: "", moved_on: today(),
+    comp: "", resume: "", fit, situation: "", next: "", files: {},
+  });
+  filter = null; paint(); save();
+}
+
+load().catch(() => {
+  $("#thesis").textContent = "Could not read applications.json.";
+  $("#score").innerHTML = `Run <code>python3 tools/serve.py</code> and open it over localhost. Opening the file directly (file://) does not work.`;
+});
+</script>
+</body>
+</html>
