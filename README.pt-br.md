@@ -4,6 +4,11 @@
 
 > Este repositório replica o processo que eu rodei na prática pra conseguir minha primeira vaga internacional. Toda regra aqui dentro ganhou o lugar dela falhando antes, e os incidentes datados espalhados pelo método são essas falhas, minhas.
 
+![A página do funil, com uma busca em andamento](assets/funnel.png)
+
+*Trinta candidaturas, sessenta e nove anúncios lidos e não perseguidos. Essa proporção é a forma de uma busca de verdade, e a página mostra em vez de esconder.*
+
+
 Busca de vaga rodando como sistema, com um agente de IA trabalhando junto. Achar vaga, julgar se presta, escrever o material, revisar antes de mandar, preparar cada etapa de entrevista, negociar a oferta, e manter um funil que não mente sobre o próprio estado.
 
 Funciona com Claude Code, Codex, ou qualquer agente que leia markdown.
@@ -100,10 +105,6 @@ Estão no `method/rules.md`, cada uma com a falha datada que a gerou. Resumindo.
 ```bash
 python3 tools/serve.py
 ```
-
-![A página do funil, com uma busca em andamento](assets/funnel.png)
-
-Trinta candidaturas, sessenta e nove anúncios lidos e não perseguidos, e uma manchete que diz pra que serve o dia de hoje. Essa proporção é a forma de uma busca de verdade, e a página foi feita pra mostrar isso em vez de esconder.
 
 Abre uma página local em `localhost:8777`. Status, situação e próxima ação editáveis na própria página, salvando direto no `applications/applications.json`. Sem banco, sem conta, nada sai da tua máquina.
 

@@ -4,6 +4,11 @@
 
 > This repository replicates the process I actually ran to land my first international job. Every rule in it earned its place by failing first, and the dated incidents throughout the method are the failures, mine.
 
+![The funnel page, with a search in progress](assets/funnel.png)
+
+*Thirty applications, sixty-nine postings read and not pursued. That ratio is the shape of a real search, and the page shows it rather than hiding it.*
+
+
 A job search run as a system, with an AI coding agent doing the work alongside you. Find openings, judge them, write the application material, review it before it goes out, prepare each interview stage, negotiate the offer, and keep a funnel that never lies to you about its own state.
 
 Works with Claude Code, Codex, or anything that reads markdown.
@@ -100,10 +105,6 @@ They are in `method/rules.md`, each with the dated failure that produced it. In 
 ```bash
 python3 tools/serve.py
 ```
-
-![The funnel page, with a search in progress](assets/funnel.png)
-
-Thirty applications, sixty-nine postings read and not pursued, and a headline that tells you what today is for. That ratio is the shape of a real search, and the page is built to show it rather than hide it.
 
 Opens a local page at `localhost:8777`. Status, situation and next action are editable in place and save straight back to `applications/applications.json`. No database, no account, nothing leaves your machine.
 
