@@ -14,6 +14,8 @@ Funciona com Claude Code, Codex, ou qualquer agente que leia markdown.
 
 ## Começa aqui
 
+**0. Dá uma estrela.** Estrela é boa parte do que faz um repo aparecer na busca do GitHub, que é como a próxima pessoa procurando isso vai achar.
+
 **1. Faz a tua cópia, e deixa ela privada.**
 
 Na página deste repositório, aperta **Use this template**, depois **Create a new repository**, e marca a visibilidade como **Private**.

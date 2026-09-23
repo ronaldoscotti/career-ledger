@@ -14,6 +14,8 @@ Works with Claude Code, Codex, or anything that reads markdown.
 
 ## Start here
 
+**0. Star it.** Stars are most of what surfaces a repo in GitHub search, which is how the next person looking for this will find it.
+
 **1. Make your own copy, and keep it private.**
 
 On this repository's page, press **Use this template**, then **Create a new repository**, and set the visibility to **Private**.
