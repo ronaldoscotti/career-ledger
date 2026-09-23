@@ -1,4 +1,8 @@
+**English** · [Português](README.pt-br.md)
+
 # career-ledger
+
+> This repository replicates the process I actually ran to land my first international job. Every rule in it earned its place by failing first, and the dated incidents throughout the method are the failures, mine.
 
 A job search run as a system, with an AI coding agent doing the work alongside you. Find openings, judge them, write the application material, review it before it goes out, prepare each interview stage, negotiate the offer, and keep a funnel that never lies to you about its own state.
 
