@@ -14,8 +14,6 @@ Funciona com Claude Code, Codex, ou qualquer agente que leia markdown.
 
 ## Começa aqui
 
-**0. Dá uma estrela.** Descarado, e é assim que a próxima pessoa acha isso aqui.
-
 **1. Faz a tua cópia, e deixa ela privada.**
 
 Na página deste repositório, aperta **Use this template**, depois **Create a new repository**, e marca a visibilidade como **Private**.
