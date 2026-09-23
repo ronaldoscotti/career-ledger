@@ -109,6 +109,12 @@ Abre uma página local em `localhost:8777`. Status, situação e próxima ação
 
 Duas coisas nessa página pagam atenção. A lista de triagem é várias vezes maior que a de candidaturas, e enxergar isso é o ponto, porque a maior parte de uma busca é decidir não aplicar. E `rejected` e `failed` são contados separados de propósito. Pilha no primeiro diz que o material não converte. Pilha no segundo diz que o material converte e a call não. São problemas diferentes, e o funil é a única coisa que sabe qual dos dois você tem.
 
+Teu funil começa vazio, e página vazia não ensina nada. Pra ver um cheio antes de ter o teu.
+
+```bash
+python3 tools/mock_funnel.py > applications/applications.json   # faz backup do teu antes
+```
+
 Também dá pra tocar por linha de comando, e o agente toca.
 
 ```bash

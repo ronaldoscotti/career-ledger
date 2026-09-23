@@ -109,6 +109,12 @@ Opens a local page at `localhost:8777`. Status, situation and next action are ed
 
 Two things on that page repay attention. The triage list is several times longer than the application list, and seeing that is the point: most of a search is deciding not to apply. And `rejected` and `failed` are counted separately on purpose. A pile of `rejected` means the material is not converting. A pile of `failed` means it converts and the call does not. Those are different problems and the funnel is the only thing that knows which one you have.
 
+Your own funnel starts empty, and an empty page teaches nothing. To see a full one before you have one:
+
+```bash
+python3 tools/mock_funnel.py > applications/applications.json   # back yours up first
+```
+
 You can also drive it from the command line, and the agent does:
 
 ```bash
