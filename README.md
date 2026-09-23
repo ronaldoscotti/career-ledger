@@ -27,7 +27,7 @@ Your copy will hold your salary floor, your employment history, your interview n
 
 **2. Read the worked example first.**
 
-`example/` is a complete fictional tree: a filled profile, an evidence bank, a master resume, a funnel with cards in several states, and one interview stage with its dossier and prompter.
+`example/` is a complete fictional tree. A filled profile, an evidence bank, a master resume, a funnel with cards in several states, and one interview stage with its dossier and prompter.
 
 | Read in this order | Why |
 |---|---|
@@ -75,7 +75,7 @@ Seven stages. You do not pick from a menu. You say what happened, and the right 
 | "the offer came in" | negotiation | The counter, written, with a number in it |
 | "why is nobody finding me?" | linkedin | An audit, and the terms you are invisible for |
 
-Outside the funnel: the voice gate runs over anything a human will read, and the drills turn an answer you wrote into one you can say.
+Two sit outside the funnel. The voice gate runs over anything a human will read, and the drills turn an answer you wrote into one you can say.
 
 ### The three rules underneath
 
@@ -95,9 +95,9 @@ python3 tools/serve.py
 
 A local page at `localhost:8777`. Status, situation and next action editable in place, saving straight to `applications/applications.json`. No database, no account, nothing leaves your machine.
 
-Two things on that page repay attention. The triage list runs several times longer than the application list, because most of a search is deciding not to apply. And `rejected` and `failed` are counted apart: a pile of the first means the material is not converting, a pile of the second means it converts and the call does not.
+Two things on that page repay attention. The triage list runs several times longer than the application list, because most of a search is deciding not to apply. And `rejected` and `failed` are counted apart. A pile of the first means the material is not converting. A pile of the second means it converts and the call does not.
 
-Your own funnel starts empty, and an empty page teaches nothing. To see a full one:
+Your own funnel starts empty, and an empty page teaches nothing. Load a full one to look at.
 
 ```bash
 python3 tools/mock_funnel.py > applications/applications.json   # back yours up first
@@ -127,13 +127,13 @@ You write markdown. The PDF comes from the build, and the build checks it. Needs
 | `applications/` | The funnel as one JSON file, a directory per company, a running log | The agent does |
 | `tools/` | Stdlib Python, no dependencies: tracker, build, search, gate | No |
 
-The boundary between the first two is enforced rather than promised:
+The boundary between the first two is enforced rather than promised.
 
 ```bash
 python3 tools/check_method.py
 ```
 
-It fails on anything personal inside `method/`: a name, a salary figure, a timezone, a stack. That gate exists because the system this came from wrote the same salary floor into seven files, and two were a month stale before anyone noticed. Prose does not validate.
+It fails on anything personal inside `method/`, whether a name, a salary figure, a timezone or a stack. That gate exists because the system this came from wrote the same salary floor into seven files, and two were a month stale before anyone noticed. Prose does not validate.
 
 ---
 
@@ -141,7 +141,7 @@ It fails on anything personal inside `method/`: a name, a salary figure, a timez
 
 Every claim that reaches a resume, a cover letter or an interview answer traces back to a recorded fact with a measured number and someone who can confirm it. A number nobody measured does not ship, tilde or no tilde.
 
-That is why the bank exists and why setup spends forty-five minutes on it. Not because a resume needs it, but because a room does. Anything on your paper has to survive three follow-up questions, and now is the time to find out it will not.
+That is why the bank exists and why setup spends forty-five minutes on it. A room demands it long before a resume does. Anything on your paper has to survive three follow-up questions, and now is the time to find out it will not.
 
 ---
 

@@ -27,7 +27,7 @@ Tua cópia vai guardar teu piso salarial, teu histórico de empregos, tuas anota
 
 **2. Lê o exemplo antes de escrever qualquer coisa.**
 
-`example/` é uma árvore fictícia completa: perfil preenchido, banco de experiências, currículo mestre, funil com cards em estados diferentes, e uma etapa de entrevista com dossiê e prompter.
+`example/` é uma árvore fictícia completa. Perfil preenchido, banco de experiências, currículo mestre, funil com cards em estados diferentes, e uma etapa de entrevista com dossiê e prompter.
 
 | Lê nesta ordem | Por quê |
 |---|---|
@@ -75,7 +75,7 @@ Sete etapas. Você não escolhe num menu. Você conta o que aconteceu, e a certa
 | "chegou a oferta" | negociação | A contraproposta, escrita, com número dentro |
 | "por que ninguém me acha?" | linkedin | Auditoria, e os termos pros quais você está invisível |
 
-Fora do funil: o gate de voz roda sobre qualquer coisa que um humano vai ler, e os drills transformam uma resposta escrita numa que você consegue falar.
+Duas ficam fora do funil. O gate de voz roda sobre qualquer coisa que um humano vai ler, e os drills transformam uma resposta escrita numa que você consegue falar.
 
 ### As três regras que sustentam o resto
 
@@ -95,9 +95,9 @@ python3 tools/serve.py
 
 Página local em `localhost:8777`. Status, situação e próxima ação editáveis na hora, salvando direto no `applications/applications.json`. Sem banco, sem conta, nada sai da tua máquina.
 
-Duas coisas nessa página pagam atenção. A lista de triagem é várias vezes maior que a de candidaturas, porque a maior parte de uma busca é decidir não aplicar. E `rejected` e `failed` são contados separados: pilha no primeiro diz que o material não converte, pilha no segundo diz que converte e a call não.
+Duas coisas nessa página pagam atenção. A lista de triagem é várias vezes maior que a de candidaturas, porque a maior parte de uma busca é decidir não aplicar. E `rejected` e `failed` são contados separados. Pilha no primeiro diz que o material não converte. Pilha no segundo diz que converte e a call não.
 
-Teu funil começa vazio, e página vazia não ensina nada. Pra ver um cheio:
+Teu funil começa vazio, e página vazia não ensina nada. Carrega um cheio pra olhar.
 
 ```bash
 python3 tools/mock_funnel.py > applications/applications.json   # faz backup do teu antes
@@ -127,13 +127,13 @@ Você escreve markdown. O PDF sai do build, e o build confere. Precisa de Chrome
 | `applications/` | O funil num JSON, uma pasta por empresa, um log corrido | O agente edita |
 | `tools/` | Python de stdlib, sem dependência: tracker, build, busca, gate | Não |
 
-A fronteira entre as duas primeiras é verificada, não prometida:
+A fronteira entre as duas primeiras é verificada, não prometida.
 
 ```bash
 python3 tools/check_method.py
 ```
 
-Ele reprova qualquer coisa pessoal dentro do `method/`: um nome, um valor de salário, um fuso, uma stack. Esse gate existe porque o sistema de onde isso saiu escreveu o mesmo piso salarial em sete arquivos, e dois estavam um mês desatualizados antes de alguém notar. Prosa não valida.
+Ele reprova qualquer coisa pessoal dentro do `method/`, seja um nome, um valor de salário, um fuso ou uma stack. Esse gate existe porque o sistema de onde isso saiu escreveu o mesmo piso salarial em sete arquivos, e dois estavam um mês desatualizados antes de alguém notar. Prosa não valida.
 
 ---
 
@@ -141,7 +141,7 @@ Ele reprova qualquer coisa pessoal dentro do `method/`: um nome, um valor de sal
 
 Toda afirmação que chega num currículo, numa carta ou numa resposta de entrevista volta a um fato registrado, com número medido e alguém que confirme. Número que ninguém mediu não sobe, nem com til na frente.
 
-É por isso que o banco existe e que o setup gasta quarenta e cinco minutos nele. Não porque um currículo precisa, mas porque uma sala precisa. Qualquer coisa no teu papel tem que aguentar três perguntas de acompanhamento, e a hora de descobrir que não aguenta é agora.
+É por isso que o banco existe e que o setup gasta quarenta e cinco minutos nele. Uma sala cobra isso muito antes de um currículo cobrar. Qualquer coisa no teu papel tem que aguentar três perguntas de acompanhamento, e a hora de descobrir que não aguenta é agora.
 
 ---
 
