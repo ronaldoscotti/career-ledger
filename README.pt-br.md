@@ -101,6 +101,10 @@ Estão no `method/rules.md`, cada uma com a falha datada que a gerou. Resumindo.
 python3 tools/serve.py
 ```
 
+![A página do funil, com uma busca em andamento](assets/funnel.png)
+
+Trinta candidaturas, sessenta e nove anúncios lidos e não perseguidos, e uma manchete que diz pra que serve o dia de hoje. Essa proporção é a forma de uma busca de verdade, e a página foi feita pra mostrar isso em vez de esconder.
+
 Abre uma página local em `localhost:8777`. Status, situação e próxima ação editáveis na própria página, salvando direto no `applications/applications.json`. Sem banco, sem conta, nada sai da tua máquina.
 
 Duas coisas nessa página pagam atenção. A lista de triagem é várias vezes maior que a de candidaturas, e enxergar isso é o ponto, porque a maior parte de uma busca é decidir não aplicar. E `rejected` e `failed` são contados separados de propósito. Pilha no primeiro diz que o material não converte. Pilha no segundo diz que o material converte e a call não. São problemas diferentes, e o funil é a única coisa que sabe qual dos dois você tem.

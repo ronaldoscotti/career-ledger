@@ -101,6 +101,10 @@ They are in `method/rules.md`, each with the dated failure that produced it. In 
 python3 tools/serve.py
 ```
 
+![The funnel page, with a search in progress](assets/funnel.png)
+
+Thirty applications, sixty-nine postings read and not pursued, and a headline that tells you what today is for. That ratio is the shape of a real search, and the page is built to show it rather than hide it.
+
 Opens a local page at `localhost:8777`. Status, situation and next action are editable in place and save straight back to `applications/applications.json`. No database, no account, nothing leaves your machine.
 
 Two things on that page repay attention. The triage list is several times longer than the application list, and seeing that is the point: most of a search is deciding not to apply. And `rejected` and `failed` are counted separately on purpose. A pile of `rejected` means the material is not converting. A pile of `failed` means it converts and the call does not. Those are different problems and the funnel is the only thing that knows which one you have.
